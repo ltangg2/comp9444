@@ -10,7 +10,7 @@ class Preprocess:
     def __init__(self):
         self.graph = Graph()
         self.splits = ["train", "validate", "test"]
-        self.folders = ["vanilla", "ntm", "audio"]
+        self.folders = ["vanilla", "ntm"]
         self.relations = set()
 
         self.question_types = {
@@ -142,17 +142,12 @@ class Preprocess:
 
         split_name = "dev" if data_type == "validate" else data_type
 
-        if folder == 'audio':
-            with np.load(f'MetaQA/{hop}-hop/{folder}/qa_{split_name}.npz') as data:
-                # TODO: Implement audio question loading logic here
-                pass
-        else:
-            with open(f'MetaQA/{hop}-hop/{folder}/qa_{split_name}.txt', 'r') as f:
-                rows = [line.strip() for line in f if line.strip()]
-                for line in rows:
-                    question, answer = line.split('\t')
-                    answer_list = answer.split('|')
-                    questions.append(question)
-                    answers.append(answer_list)
+        with open(f'MetaQA/{hop}-hop/{folder}/qa_{split_name}.txt', 'r') as f:
+            rows = [line.strip() for line in f if line.strip()]
+            for line in rows:
+                question, answer = line.split('\t')
+                answer_list = answer.split('|')
+                questions.append(question)
+                answers.append(answer_list)
 
         return questions, answers
