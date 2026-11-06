@@ -1,21 +1,23 @@
+from collections import defaultdict
+
 class Graph:
     def __init__(self):
         self.relation_node_type_mapping = {
             "directed_by": ("movie", "director"),
             "starred_actors": ("movie", "actor"),
             "has_genre": ("movie", "genre"),
-            "has_writer": ("movie", "writer"),
             "in_language": ("movie", "language"),
             "release_year": ("movie", "year"),
             "has_tags": ("movie", "tag"),
             "has_imdb_rating": ("movie", "imdb_rating"),
             "written_by": ("movie", "writer"),
+            "has_imdb_votes": ("movie", "imdb_votes"),
         }
 
         node_types = ['movie', 'director', 'actor', 'genre', 'writer',
                     'language', 'year', 'tag', 'imdb_rating']
 
-        self.adj_list = {}
+        self.adj_list = defaultdict(list)
         self.node_types = {t: set() for t in node_types}
 
     def add_entity(self, u, node_type=None):
@@ -29,16 +31,14 @@ class Graph:
 
     def add_relation(self, u, v, relation):
         # Add a relation between two entities in the graph.
-        mapping = self.relation_node_type_mapping.get(relation)
-        if not mapping:
-            u_type, v_type = None, None
-        else:
-            u_type, v_type = mapping
+        u_type, v_type = self.relation_node_type_mapping[relation]
+        u_node = (u_type, u)
+        v_node = (v_type, v)
 
-        self.add_entity(u, u_type)
-        self.add_entity(v, v_type)
-        self.adj_list[u].append((v, relation))
-        self.adj_list[v].append((u, relation))
+        self.add_entity(u_node, u_type)
+        self.add_entity(v_node, v_type)
+        self.adj_list[u_node].append((v_node, relation))
+        self.adj_list[v_node].append((u_node, relation))
 
     def get_relation(self, u, v):
         # Get the relation between two entities if it exists.
@@ -47,12 +47,12 @@ class Graph:
                 return relation
         return None
 
-    def get_related_entities(self, u, relation):
+    def get_related_entities(self, node, relation):
         # Get all entities related to u by the specified relation.
         entities = []
-        for neighbor, rel in self.get_neighbors(u):
+        for nbr, rel in self.adj_list.get(node, []):
             if rel == relation:
-                entities.append(neighbor)
+                entities.append(nbr)
 
         return entities
 
