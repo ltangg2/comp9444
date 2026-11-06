@@ -15,22 +15,12 @@ class Question_Classifer:
                                         max_features=40000
                                     )
 
-    def fit(self, questions, question_types):
+    def train(self, questions, question_types):
         # Fit the question classifier model using the provided questions and
         # their corresponding types.
-        print("Starting question classifier training...")
-        self.df = pd.DataFrame({"questions": questions, "types": question_types})
-        X_train, X_test, y_train, y_test = train_test_split(self.df["questions"],
-                                                            self.df["types"],
-                                                            test_size=0.3,
-                                                            random_state=42,
-                                                            stratify=self.df["types"])
-        X_train_tfidf = self.vectorizer.fit_transform(X_train)
-        X_test_tfidf = self.vectorizer.transform(X_test)
-
-        self.model.fit(X_train_tfidf, y_train)
-
-        y_pred = self.model.predict(X_test_tfidf)
+        print("Start question classifier training...")
+        X_train_tfidf = self.vectorizer.fit_transform(questions)
+        self.model.fit(X_train_tfidf, question_types)
         print("Question classifier training completed.")
 
     def predict(self, question):
@@ -43,7 +33,7 @@ class Question_Classifer:
     def validate(self, validate_questions, validate_labels):
         # Validate the model on a validation dataset and print the classification
         # report and accuracy.
-        print("Starting question classifier validation...")
+        print("Start question classifier validation...")
         X_validate_tfidf = self.vectorizer.transform(validate_questions)
         y_pred = self.model.predict(X_validate_tfidf)
         acc = accuracy_score(validate_labels, y_pred)
@@ -56,7 +46,7 @@ class Question_Classifer:
     def test(self, test_questions, test_labels):
         # Evaluate the model on a test dataset and print the classification
         # report and accuracy.
-        print("Starting question classifier testing...")
+        print("Start question classifier testing...")
         X_test_tfidf = self.vectorizer.transform(test_questions)
         y_pred = self.model.predict(X_test_tfidf)
         acc = accuracy_score(test_labels, y_pred)
