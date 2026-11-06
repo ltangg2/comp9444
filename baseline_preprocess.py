@@ -11,6 +11,7 @@ class Preprocess:
         self.graph = Graph()
         self.splits = ["train", "validate", "test"]
         self.folders = ["vanilla", "ntm", "audio"]
+        self.relations = set()
 
         self.question_types = {
             data_type: {hop: [] for hop in range(1, self.n_hops + 1)}
@@ -54,8 +55,8 @@ class Preprocess:
     def get_question_types(self):
         return self.question_types
 
-    def set_question_types(self, question_types):
-        self.question_types = question_types
+    def get_relations(self):
+        return self.relations
 
     def get_data(self, data_type):
         # Retrieve the specified data type (training, validation, or test) from
@@ -91,7 +92,7 @@ class Preprocess:
 
     def preprocess(self):
         # Preprocess the knowledge base data and add it to the graph.
-        print("Starting preprocessing...")
+        print("Start preprocessing...")
         self.add_entities()
         self.add_relations()
         self.add_question_types()
@@ -113,6 +114,7 @@ class Preprocess:
             for line in f:
                 u, relation, v = line.strip().split('|')
                 self.graph.add_relation(u, v, relation)
+                self.relations.add(relation)
 
     def add_question_types(self):
         # Store the question types from each hop's question_types.txt file into
