@@ -92,14 +92,10 @@ class Preprocess:
 
     def preprocess(self):
         # Preprocess the knowledge base data and add it to the graph.
-        print("Start preprocessing...")
         self.add_entities()
         self.add_relations()
         self.add_question_types()
         self.add_questions()
-
-        print("Preprocessing completed.")
-        return self
 
     def add_entities(self):
         # Add the knowledge base data into the graph as entities.
