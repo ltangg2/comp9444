@@ -3,19 +3,21 @@ from collections import defaultdict
 class Graph:
     def __init__(self):
         self.relation_node_type_mapping = {
-            "directed_by": ("movie", "director"),
-            "starred_actors": ("movie", "actor"),
+            "directed_by": ("movie", "person"),
+            "starred_actors": ("movie", "person"),
             "has_genre": ("movie", "genre"),
             "in_language": ("movie", "language"),
             "release_year": ("movie", "year"),
             "has_tags": ("movie", "tag"),
-            "has_imdb_rating": ("movie", "imdb_rating"),
-            "written_by": ("movie", "writer"),
-            "has_imdb_votes": ("movie", "imdb_votes"),
+            "has_imdb_rating": ("movie", "imdbrating"),
+            "written_by": ("movie", "person"),
+            "has_imdb_votes": ("movie", "imdbvotes"),
         }
 
-        node_types = ['movie', 'director', 'actor', 'genre', 'writer',
-                    'language', 'year', 'tag', 'imdb_rating']
+        node_types = [
+            'movie', 'person', 'genre', 'language',
+            'year', 'tag', 'imdbrating', 'imdbvotes'
+        ]
 
         self.adj_list = defaultdict(list)
         self.node_types = {t: set() for t in node_types}
