@@ -13,9 +13,12 @@ class Baseline:
         self.graph = graph
         self.question_classifier = question_classifier
 
-    def test(self, questions, answers):
+    def evaluate(self, questions, answers):
         # Evaluate the model's performance on a set of questions and their
         # corresponding answers, returning the exact-match accuracy.
+        if len(questions) == 0:
+            return 0
+
         correct = 0
 
         for question, true_answers in zip(questions, answers):
@@ -51,41 +54,62 @@ class Baseline:
     def get_relation_path(self, question_type):
         # Given the question type, remove the "_to_" from the string and obtain
         # the relation path.
-        node_path = question_type.split("_to_")
+        role_path = [
+            "tag" if t == "tags" else t
+            for t in question_type.split("_to_")
+        ]
+
+        role_to_relation = {
+            "director": "directed_by",
+            "writer": "written_by",
+            "actor": "starred_actors",
+            "genre": "has_genre",
+            "language": "in_language",
+            "year": "release_year",
+            "tag": "has_tags",
+            "imdbrating": "has_imdb_rating",
+            "imdbvotes": "has_imdb_votes",
+        }
+
         relation_path = []
 
-        for source_type, target_type in zip(node_path, node_path[1:]):
-            for relation, (u_type, v_type) in self.graph.relation_node_type_mapping.items():
-                if ((source_type, target_type) == (u_type, v_type) or
-                    (source_type, target_type) == (v_type, u_type)):
-                    relation_path.append(relation)
-                    break
+        for source_type, target_type in zip(role_path, role_path[1:]):
+            role = target_type if source_type == "movie" else source_type
+            relation_path.append(role_to_relation[role])
+
+        node_path = [
+            "person" if t in {"actor", "director", "writer"} else t
+            for t in role_path
+        ]
 
         return relation_path, node_path
 
     def answer_question(self, entities, node_path, relation_path):
         # Given the starting entities and relation path, traverse the graph to
         # find the answer entities.
-        curr_entities = set()
-        for entity in entities:
-            curr_entities.add((node_path[0], entity))
+        paths = [
+            ((node_path[0], entity), None)
+            for entity in entities
+        ]
 
         for relation, target_type in zip(relation_path, node_path[1:]):
-            next_entities = set()
+            next_paths = []
 
-            for entity in curr_entities:
-                nbrs = self.graph.get_related_entities(entity, relation)
+            for current_node, previous_node in paths:
+                nbrs = self.graph.get_related_entities(
+                    current_node, relation
+                )
 
                 for nbr in nbrs:
-                    if nbr[0] == target_type:
-                        next_entities.add(nbr)
+                    if nbr[0] == target_type and nbr != previous_node:
+                        next_paths.append((nbr, current_node))
 
-            curr_entities = next_entities
+            paths = next_paths
 
-            if not curr_entities:
+            if not paths:
                 break
 
-        return {entity_name for _, entity_name in curr_entities}
+        return {node[1] for node, previous_node in paths}
 
 if __name__ == "__main__":
     print("\n=== Preprocessing ===")
@@ -102,18 +126,19 @@ if __name__ == "__main__":
     print("\n=== Question Classifier ===")
     question_classifier = Question_Classifer()
     question_classifier.train(train_qs, train_qs_types)
-    question_classifier.test(test_qs, test_qs_types)
+    print("=== Validate Data ===")
+    question_classifier.evaluate(valid_qs, valid_qs_types)
+    print("=== Test Data ===")
+    question_classifier.evaluate(test_qs, test_qs_types)
 
     print("\n=== Baseline ===")
     baseline = Baseline(graph, question_classifier)
-    print("Training Data:")
-    for hop in range(1, 4):
-        accuracies = []
-        for folder in ["vanilla", "ntm", "audio"]:
-            q_set = questions["train"][hop][folder]
-            a_set = answers["train"][hop][folder]
-            accuracy = baseline.test(q_set, a_set)
-            accuracies.append(accuracy)
 
-        print(f"{hop}-hop:")
-        print(f"\tvanilla: {accuracies[0]} | ntm: {accuracies[1]} | audio: {accuracies[2]}")
+    for hop in range(1, 4):
+        print(f"\t=== {hop}-hop ===")
+        for folder in ["vanilla", "ntm"]:
+            hop_qs = questions["test"][hop][folder]
+            hop_ans = answers["test"][hop][folder]
+            accuracy = baseline.evaluate(hop_qs, hop_ans)
+            print(f"\t{folder} data's accuracy: {accuracy:.2%}")
+
