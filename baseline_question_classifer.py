@@ -1,5 +1,5 @@
 import re
-
+from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
@@ -14,7 +14,7 @@ class Question_Classifer:
 
         self.vectorizer = TfidfVectorizer(
             ngram_range=(1, 2),
-            stop_words="english",
+            stop_words=None,
             min_df=5,
             max_features=40000
         )
@@ -46,7 +46,7 @@ class Question_Classifer:
 
     def predict(self, question):
         # Predict the type of a given question using the trained model.
-        normalised_question = self.normalize_question(question)
+        normalised_question = self.normalise_question(question)
         features = self.vectorizer.transform([normalised_question])
         return self.model.predict(features)[0]
 
