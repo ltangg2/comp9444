@@ -148,7 +148,6 @@ if __name__ == "__main__":
     print("\n=== Baseline ===")
     baseline = Baseline(graph, question_classifier)
 
-    print("\n### Training and validation curve ###")
     plot_training_validation_curve(
         graph,
         data["train"][QS],
