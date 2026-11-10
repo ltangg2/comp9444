@@ -1,0 +1,107 @@
+diff --git a/baseline/baseline.py b/baseline/baseline.py
+index 84a5978..252fb02 100644
+--- a/baseline/baseline.py
++++ b/baseline/baseline.py
+@@ -28,6 +28,8 @@ class Baseline:
+     def evaluate(self, questions, answers):
+         # Evaluate the model's performance on a set of questions and their
+         # corresponding answers, returning the exact-match accuracy.
++        if len(questions) != len(answers):
++            raise ValueError("Question and answer counts differ")
+         if not questions:
+             return 0.0
+ 
+diff --git a/baseline/baseline_preprocess.py b/baseline/baseline_preprocess.py
+index 01ada40..dd9b268 100644
+--- a/baseline/baseline_preprocess.py
++++ b/baseline/baseline_preprocess.py
+@@ -1,16 +1,16 @@
+ import re
+-import numpy as np
+-import base64
++from pathlib import Path
+ 
+ from baseline.graph import Graph
+ 
+ class Preprocess:
+     N_HOPS = 3
+ 
+-    def __init__(self):
++    def __init__(self, data_root="MetaQA", folders=("vanilla", "ntm")):
+         self.graph = Graph()
++        self.data_root = Path(data_root)
+         self.splits = ["train", "dev", "test"]
+-        self.folders = ["vanilla", "ntm"]
++        self.folders = list(folders)
+         self.relations = set()
+ 
+         self.qs_types = {
+@@ -99,14 +99,17 @@ class Preprocess:
+ 
+     def add_entities(self):
+         # Add the knowledge base data into the graph as entities.
+-        with open('MetaQA/entity/kb_entity_dict.txt', 'r') as f:
++        entity_file = self.data_root / "entity" / "kb_entity_dict.txt"
++        if not entity_file.is_file():
++            return  # Relations below already add every typed graph node.
++        with entity_file.open('r', encoding='utf-8-sig') as f:
+             for line in f:
+                 u = re.sub(r'^[0-9 ]+', '', line.strip())
+                 self.graph.add_entity(u)
+ 
+     def add_relations(self):
+         # Add the knowledge base data into the graph as entities and relations.
+-        with open('MetaQA/kb.txt', 'r') as f:
++        with (self.data_root / 'kb.txt').open('r', encoding='utf-8-sig') as f:
+             for line in f:
+                 u, relation, v = line.strip().split('|')
+                 self.graph.add_relation(u, v, relation)
+@@ -117,8 +120,8 @@ class Preprocess:
+         # a list.
+         for split in self.splits:
+             for i in range(1, self.N_HOPS + 1):
+-                filename = f"MetaQA/{i}-hop/qa_{split}_qtype.txt"
+-                with open(filename, "r") as f:
++                filename = self.data_root / f"{i}-hop" / f"qa_{split}_qtype.txt"
++                with filename.open("r", encoding='utf-8-sig') as f:
+                     self.qs_types[split][i] = [line.strip() for line in f]
+ 
+     def add_questions(self):
+@@ -135,8 +138,8 @@ class Preprocess:
+         # Load the question-answer pairs from the specified hop's text file.
+         questions = []
+         answers = []
+-        filename = f'MetaQA/{hop}-hop/{folder}/qa_{split}.txt'
+-        with open(filename, 'r') as f:
++        filename = self.data_root / f'{hop}-hop' / folder / f'qa_{split}.txt'
++        with filename.open('r', encoding='utf-8-sig') as f:
+             rows = [line.strip() for line in f if line.strip()]
+             for line in rows:
+                 question, answer = line.split('\t')
+@@ -144,4 +147,4 @@ class Preprocess:
+                 questions.append(question)
+                 answers.append(answer_list)
+ 
+-        return questions, answers
+\ No newline at end of file
++        return questions, answers
+diff --git a/baseline/graph.py b/baseline/graph.py
+index b9638a7..3950f4f 100644
+--- a/baseline/graph.py
++++ b/baseline/graph.py
+@@ -25,7 +25,7 @@ class Graph:
+     def add_entity(self, node_u, node_type=None):
+         # Add an entity to the graph if it doesn't already exist.
+         # If given the type of entity, store it in the node_types dictionary.
+-        if u not in self.adj_list:
++        if node_u not in self.adj_list:
+             self.adj_list[node_u] = []
+ 
+         if node_type and node_type in self.node_types:
+@@ -59,4 +59,4 @@ class Graph:
+         return entities
+ 
+     def get_neighbours(self, node):
+-        return self.adj_list.get(node, [])
+\ No newline at end of file
++        return self.adj_list.get(node, [])
