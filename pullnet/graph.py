@@ -75,7 +75,7 @@ class KnowledgeGraph:
         # form a list of FactTraversal using entity ID
         self.entity_to_facts = defaultdict(list)
         self.incidence_edges = []
-        # self._fact_tensors = None  # built lazily by fact_tensors()
+        self._fact_tensors = None  # built lazily by fact_tensors()
 
         for fact_id, (subject, relation, obj) in enumerate(self.triples):
             s_id = self.entity_to_id[subject]
@@ -121,23 +121,23 @@ class KnowledgeGraph:
     def get_facts_for_entity(self, entity_id):
         return self.entity_to_facts.get(entity_id, [])
 
-    # def fact_tensors(self):
-    #     """
-    #     Return three LongTensors (subject_ids, relation_ids, object_ids), each of
-    #     length num_facts, where position i describes fact i.
+    def fact_tensors(self):
+        """
+        Return three LongTensors (subject_ids, relation_ids, object_ids), each of
+        length num_facts, where position i describes fact i.
 
-    #     Built once and cached. The graph encoder uses them to look up thousands of
-    #     facts in one vectorised operation instead of one Python call per fact.
-    #     (torch is imported here so the rest of this file stays pure Python.)
-    #     """
-    #     if self._fact_tensors is None:
-    #         import torch
-    #         self._fact_tensors = (
-    #             torch.tensor([f.subject_id for f in self.facts], dtype=torch.long),
-    #             torch.tensor([f.relation_id for f in self.facts], dtype=torch.long),
-    #             torch.tensor([f.object_id for f in self.facts], dtype=torch.long),
-    #         )
-    #     return self._fact_tensors
+        Built once and cached. The graph encoder uses them to look up thousands of
+        facts in one vectorised operation instead of one Python call per fact.
+        (torch is imported here so the rest of this file stays pure Python.)
+        """
+        if self._fact_tensors is None:
+            import torch
+            self._fact_tensors = (
+                torch.tensor([f.subject_id for f in self.facts], dtype=torch.long),
+                torch.tensor([f.relation_id for f in self.facts], dtype=torch.long),
+                torch.tensor([f.object_id for f in self.facts], dtype=torch.long),
+            )
+        return self._fact_tensors
 
     def get_fact(self, fact_id):
         return self.facts[fact_id]
