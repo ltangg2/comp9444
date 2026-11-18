@@ -1,17 +1,15 @@
-# TO UPDATE COMMENTS
-
 """
-Ranking metrics used by both evaluation scripts.
+ranking metrics used by both evaluation scripts
 
-Given the model's ranked list of entities for one question and the set of gold
+given the model's ranked list of entities for one question and the set of gold
 answers:
-
-  Hits@K    1 if at least one gold answer is in the top K, else 0.
-            Hits@1 is the headline MetaQA number and the fairest one to compare
-            against the baseline.
-  MRR       1 / (rank of the best-ranked gold answer); 0 if none was ranked.
-  Recall@K  fraction of ALL gold answers that appear in the top K.
-            (Questions with many answers cannot reach Recall@1 = 1.)
+    - Hits@K = 1 if at least one gold answer is in the top K, else 0
+        - Hits@1 = headline MetaQA number (the fairest one to compare
+            against the baseline)
+    - MRR = 1 / (rank of the best-ranked gold answer)
+        - 0 if none was ranked
+    - Recall@K = fraction of ALL gold answers that appear in the top K
+        - Questions with many answers cannot reach Recall@1 = 1
 """
 
 METRIC_NAMES = [
@@ -23,7 +21,7 @@ METRIC_NAMES = [
 def ranking_metrics(ranked_entity_ids, gold_entity_ids):
     gold = set(gold_entity_ids)
 
-    # 1-based ranks of every gold answer that appears in the ranking.
+    # 1-based ranks of every gold answer that appears in the ranking
     gold_ranks = [
         rank for rank, entity_id in enumerate(ranked_entity_ids, start=1)
         if entity_id in gold

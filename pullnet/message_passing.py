@@ -1,42 +1,26 @@
-# TO UPDATE COMMENTS
-
 """
-MODEL (graph encoder): give every entity in the question's subgraph a vector that
-reflects (a) the question and (b) the facts around it.
+MODEL (graph encoder): give every entity in the question's subgraph a vector
+reflecting (a) the question and (b) the facts around it
 
-Why this exists
----------------
-Answering "which movies were directed by the director of [X]?" needs more than
-the question text: the model must know how entities are CONNECTED. A graph
-neural network (message passing) does this. Each fact "tells" its two entities
-about itself, and each entity updates its vector from what it hears.
+- model must know how entities are connected
+- can be done via a graph NN (message passing)
+    - each fact "tells" its two entities about itself and each entity updates its vector accordingly
 
-How one round works (all facts processed at once, in matrix form)
+processing one round (all facts processed at once, in matrix form)
 -----------------------------------------------------------------
-  1. Fact vector   = tanh( Linear([subject_state, relation, object_state, question]) )
-  2. Message       = a role-specific Linear of the fact vector, one for the
-                     subject side and one for the object side.
-  3. Aggregation   = MEAN of the messages an entity receives (so hub entities
-                     do not get huge vectors just for having many neighbours).
-  4. Update        = GRUCell(aggregated message, old state)
+1. fact vector = tanh(linear([subject_state, relation, object_state, question]))
+2. message = role-specific Linear of the fact vector, one for the subject side and one for the object side
+3. aggregation = mean of the messages an entity receives (hub entities do not get huge vectors for having many neighbours)
+4. update = GRUCell(aggregated message, old state)
 
-Two design choices added for 2-hop questions
---------------------------------------------
-  * NUM ROUNDS = 2. After one round an entity only knows about its direct
-    neighbours. A 2-hop answer must "see" the topic entity two steps away, so
-    information has to travel two steps. Weights are shared across rounds.
-  * TOPIC FLAG. A learned vector is added to the topic entity so the network
-    knows where reasoning starts. Without it, nothing marks which node is the root.
-
-Speed
------
-The first version looped over facts in Python (about 20 tiny PyTorch calls PER FACT,
-thousands of facts per question). This version does the same maths with a few
-large tensor operations (gather -> Linear -> index_add), which is how GNNs are
-normally written and is what makes GPU training worthwhile.
-
-Limitation to mention in the report: this is a simplified message-passing
-encoder, not the exact GRAFT-Net/PullNet graph convolution.
+- NUM ROUNDS = 2
+    - after one round an entity only knows about its direct neighbours
+    - 2-hop answer must "see" the topic entity two steps away (3 steps away for 3-hop)
+- TOPIC FLAG
+    - a learned vector is added to the topic entity so the network knows where reasoning starts
+    - i.e. marks which node is the root
+- LIMITATION
+    - uses a simplified message-passing encoder, not the exact GRAFT-Net/PullNet graph convolution
 """
 
 import torch
@@ -44,6 +28,7 @@ import torch.nn as nn
 
 
 class QuestionGraphEncoder(nn.Module):
+
 
     def __init__(
         self,
@@ -59,111 +44,114 @@ class QuestionGraphEncoder(nn.Module):
         self.num_rounds = num_rounds
         self.use_topic_flag = use_topic_flag
 
-        # One learnable vector per KB entity and per (direction-aware) relation.
+        # one learnable vector per KB entity and per (direction-aware) relation
         self.entity_embeddings = nn.Embedding(num_entities, embedding_dim)
         self.relation_embeddings = nn.Embedding(num_relations, embedding_dim)
 
         # subject + relation + object + question  ->  fact vector
         self.fact_encoder = nn.Linear(embedding_dim * 4, embedding_dim)
 
-        # Different transformations for the subject end and the object end.
+        # different transformations for the subject end and the object end
         self.subject_message = nn.Linear(embedding_dim, embedding_dim)
         self.object_message = nn.Linear(embedding_dim, embedding_dim)
 
-        # Merge incoming messages into the entity's existing state.
+        # merge incoming messages into the entity's existing state
         self.entity_updater = nn.GRUCell(embedding_dim, embedding_dim)
 
-        # Injects the question into every entity's starting state.
+        # injects the question into every entity's starting state
         self.question_projection = nn.Linear(embedding_dim, embedding_dim)
 
-        # Marks the topic entity (only created when enabled so that state_dicts
-        # of the two variants are not confused).
+        # marks the topic entity
         if use_topic_flag:
             self.topic_embedding = nn.Parameter(torch.randn(embedding_dim) * 0.1)
 
+
     def forward(self, kg, subgraph, question_vector, topic_entity_id=None):
         """
-        Args:
-            kg: full KnowledgeGraph (used to look up fact endpoints/relations).
-            subgraph: QuestionSubgraph (entity IDs + fact IDs to encode).
-            question_vector: shape (embedding_dim,) or (1, embedding_dim).
-            topic_entity_id: required when use_topic_flag is True.
+        parameters:
+            - kg: full KnowledgeGraph (used to look up fact endpoints/relations)
+            - subgraph: QuestionSubgraph (entity IDs + fact IDs to encode)
+            - question_vector: shape (embedding_dim,) or (1, embedding_dim)
+            - topic_entity_id: required when use_topic_flag is True
 
-        Returns:
-            entity_ids:     sorted list of KB entity IDs in the subgraph.
-            entity_vectors: tensor (len(entity_ids), embedding_dim); row i is
-                            the vector of entity_ids[i].
+        returns:
+            - entity_ids: sorted list of KB entity IDs in the subgraph
+            - entity_vectors: tensor (len(entity_ids), embedding_dim); row i is the vector of entity_ids[i]
         """
-        if not subgraph.entity_ids:
+        if len(subgraph.entity_ids) == 0:
             raise ValueError("Question subgraph contains no entities.")
         if self.use_topic_flag and topic_entity_id is None:
             raise ValueError("This encoder uses a topic flag: pass topic_entity_id.")
 
         device = question_vector.device
-        question = question_vector.reshape(1, -1)  # (1, D) for broadcasting
+        question = question_vector.reshape(1, -1)   # shape (1, embedding_dim)
 
-        # ---- 1. Index the entities of this subgraph ------------------------
+        # number the entities 0..N-1 so each entity has a row in our tensors
         entity_ids = sorted(subgraph.entity_ids)
-        entity_id_tensor = torch.tensor(entity_ids, dtype=torch.long, device=device)
+        row_of = {}
+        for row, entity_id in enumerate(entity_ids):
+            row_of[entity_id] = row
         num_entities = len(entity_ids)
 
-        # ---- 2. Look up the facts' endpoints and relations -----------------
-        # kg.fact_tensors() holds (subject, relation, object) for ALL facts;
-        # we gather just the facts in this subgraph.
-        all_subjects, all_relations, all_objects = kg.fact_tensors()
-        fact_id_tensor = torch.tensor(sorted(subgraph.fact_ids), dtype=torch.long)
-        subjects = all_subjects[fact_id_tensor].to(device)
-        relations = all_relations[fact_id_tensor].to(device)
-        objects = all_objects[fact_id_tensor].to(device)
+        # for each fact, find the rows of its subject and object
+        # facts with an endpoint outside the subgraph are skipped
+        subject_rows = []
+        object_rows = []
+        relation_ids = []
+        for fact_id in sorted(subgraph.fact_ids):
+            fact = kg.get_fact(fact_id)
+            if fact.subject_id in row_of and fact.object_id in row_of:
+                subject_rows.append(row_of[fact.subject_id])
+                object_rows.append(row_of[fact.object_id])
+                relation_ids.append(fact.relation_id)
 
-        # Convert KB entity IDs to row positions (0..N-1) using the sorted ID
-        # list; searchsorted + equality check also tells us which facts have
-        # both endpoints inside the subgraph (others are ignored).
-        last = num_entities - 1
-        subject_pos = torch.searchsorted(entity_id_tensor, subjects).clamp(max=last)
-        object_pos = torch.searchsorted(entity_id_tensor, objects).clamp(max=last)
-        keep = (
-            (entity_id_tensor[subject_pos] == subjects)
-            & (entity_id_tensor[object_pos] == objects)
-        )
-        subject_pos, object_pos, relations = (
-            subject_pos[keep], object_pos[keep], relations[keep]
-        )
+        num_facts = len(relation_ids)
+        subject_rows = torch.tensor(subject_rows, dtype=torch.long, device=device)
+        object_rows = torch.tensor(object_rows, dtype=torch.long, device=device)
+        relation_ids = torch.tensor(relation_ids, dtype=torch.long, device=device)
 
-        # ---- 3. Initial entity states --------------------------------------
+        # initial entity states
         # entity embedding + question information (+ topic marker)
+        entity_id_tensor = torch.tensor(entity_ids, dtype=torch.long, device=device)
         states = (
             self.entity_embeddings(entity_id_tensor)
             + self.question_projection(question)
         )
         if self.use_topic_flag:
+            # 1.0 on the topic entity's row, 0.0 on every other row
             is_topic = (entity_id_tensor == topic_entity_id).float().unsqueeze(1)
             states = states + is_topic * self.topic_embedding
 
-        relation_vectors = self.relation_embeddings(relations)  # same every round
-        question_per_fact = question.expand(len(relations), -1)
+        relation_vectors = self.relation_embeddings(relation_ids)
+        question_per_fact = question.expand(num_facts, -1)
 
-        # How many messages each entity receives (for the mean). Same every round.
+        # how many messages each entity receives (for the mean)
+        ones = torch.ones(num_facts, device=device)
         counts = torch.zeros(num_entities, device=device)
-        counts = counts.index_add(0, subject_pos, torch.ones_like(subject_pos, dtype=counts.dtype))
-        counts = counts.index_add(0, object_pos, torch.ones_like(object_pos, dtype=counts.dtype))
+        counts = counts.index_add(0, subject_rows, ones)
+        counts = counts.index_add(0, object_rows, ones)
         counts = counts.clamp(min=1).unsqueeze(1)
 
-        # ---- 4. Message passing rounds -------------------------------------
+        # message passing rounds
         for _ in range(self.num_rounds):
 
+            # one vector per fact, built from its subject, relation, object and the question
             fact_input = torch.cat(
-                [states[subject_pos], relation_vectors, states[object_pos], question_per_fact],
+                [states[subject_rows], relation_vectors, states[object_rows], question_per_fact],
                 dim=1,
             )
-            fact_vectors = torch.tanh(self.fact_encoder(fact_input))  # (F, D)
+            fact_vectors = torch.tanh(self.fact_encoder(fact_input))
 
-            # Each fact sends a message to its subject and to its object.
-            aggregated = torch.zeros_like(states)
-            aggregated = aggregated.index_add(0, subject_pos, self.subject_message(fact_vectors))
-            aggregated = aggregated.index_add(0, object_pos, self.object_message(fact_vectors))
-            aggregated = aggregated / counts  # mean
+            # each fact sends a message to its subject and to its object
+            # index_add(0, rows, messages) = for every fact i: total[rows[i]] += messages[i]
+            total = torch.zeros_like(states)
+            total = total.index_add(0, subject_rows, self.subject_message(fact_vectors))
+            total = total.index_add(0, object_rows, self.object_message(fact_vectors))
 
-            states = self.entity_updater(aggregated, states)
+            # mean of the messages each entity received
+            average_message = total / counts
+
+            # update each entity's vector
+            states = self.entity_updater(average_message, states)
 
         return entity_ids, states

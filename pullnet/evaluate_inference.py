@@ -1,25 +1,27 @@
-# TO UPDATE COMMENTS
-
 """
-EVALUATION (the one to report): end-to-end inference with the model's OWN retrieval.
+EVALUATION: end-to-end inference with the model's own retrieval
 
-No BFS teacher is used here. For each question the model:
-  encodes the question -> scores relations -> retrieves facts around the topic
-  -> picks entities to expand -> retrieves again -> ranks everything it retrieved.
+- for each question the model:
+    - encodes the question
+    - scores relations
+    - retrieves facts around the topic
+    - picks entities to expand
+    - retrieves again
+    - ranks everything it retrieved
 
-Metrics (see metrics.py): Hits@1/5/10, MRR, Recall@1/5/10, plus
-  answer_coverage  fraction of gold answers that were retrieved AT ALL. Because an
-                   answer that was never retrieved can never be ranked, this is an
-                   upper bound on Hits@K and tells you whether failures come from
-                   retrieval or from ranking.
+metrics (from metrics.py): Hits@1/5/10, MRR, Recall@1/5/10, and answer_coverage
+- answer coverage = fraction of gold answers that were retrieved at all
+    - an answer that was never retrieved can never be ranked
+    - this limits Recall@K (it also limits Hits@K if no gold answer is retrieved for a question)
+    - indicates whether failures come from retrieval or from ranking
 
-Examples
---------
+examples
   python evaluate_inference.py --split dev  --num-examples 500    # tune settings
   python evaluate_inference.py --split test                       # final number
   python evaluate_inference.py --split dev --num-examples 500 --sweep
 
-Use dev while choosing retrieval settings; touch test only for the final result.
+- use dev while choosing retrieval settings
+- use test for the final result
 """
 
 import argparse
@@ -52,22 +54,19 @@ HOP = args.hop
 DEVICE = torch.device(args.device)
 torch.manual_seed(42)
 
-# ---------------------------------------------------------------------------
-# Load KB, model, data
-# ---------------------------------------------------------------------------
+# load KB, model, data
 kg = KnowledgeGraph(load_knowledge_graph(config.KB_PATH))
 components, vocab, checkpoint = load_checkpoint(config.checkpoint_path(HOP), kg, DEVICE)
 print(f"Loaded checkpoint (epoch {checkpoint['epoch']}, dev loss {checkpoint['dev_loss']:.4f})")
 
 examples = list(load_all_datasets(config.DATA_DIR, hops=(HOP,))[HOP][args.split])
-random.Random(0).shuffle(examples)           # unbiased subset if --num-examples is used
+# unbiased subset if --num-examples is used
+random.Random(0).shuffle(examples)
 if args.num_examples:
     examples = examples[:args.num_examples]
 print(f"Evaluating {len(examples)} {args.split} questions ({HOP}-hop)")
 
-# ---------------------------------------------------------------------------
-# Encode each question once (identical for every retrieval setting)
-# ---------------------------------------------------------------------------
+# encode each question once (identical for every retrieval setting)
 prepared, skipped, unmatched_answers = [], 0, 0
 
 with torch.no_grad():
@@ -105,9 +104,7 @@ if not prepared:
     raise RuntimeError("No questions could be prepared.")
 
 
-# ---------------------------------------------------------------------------
-# Evaluate one retrieval setting
-# ---------------------------------------------------------------------------
+# evaluate one retrieval setting
 def evaluate(setting):
     per_question, coverage, entities, facts = [], [], [], []
 
@@ -161,9 +158,7 @@ for setting in settings:
     print(f"\n=== {setting['name']}: max_facts={setting['max_facts']}, top_k={setting['top_k']} ===")
     all_results[setting["name"]] = {"setting": setting, "metrics": evaluate(setting)}
 
-# ---------------------------------------------------------------------------
-# Report
-# ---------------------------------------------------------------------------
+# report
 print("\n" + "=" * 92)
 print(f"END-TO-END EVALUATION  |  {HOP}-hop {args.split}  |  {len(prepared)} questions")
 print("=" * 92)
@@ -176,7 +171,7 @@ for name, r in all_results.items():
           f"{m['mrr']:>8.3f}{m['answer_coverage']:>8.3f}"
           f"{m['avg_entities']:>8.0f}{m['avg_facts']:>8.0f}")
 print("=" * 92)
-print("Cover = answer coverage: the ceiling for Hits@K set by retrieval alone.")
+print("Cover = answer coverage: fraction of gold answers retrieved at all (limits Recall@K).")
 
 if args.output:
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)

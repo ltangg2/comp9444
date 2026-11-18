@@ -3,14 +3,15 @@ supervision for KB-only PullNet
 
 - QA dataset gives questions and correct answers, but not the reasoning paths
     - use shortest paths in the knowledge graph to generate weak training labels (need to know which entities and relations are within the path from Q to A to train the pull-node and relation scorers) for:
-        1. Pull nodes: entities that should be expanded at each iteration
-        2. Relations: relations that should be retrieved from those entities
+        1. pull nodes: entities that should be expanded at each iteration
+        2. relations: relations that should be retrieved from those entities
     - cache BFS results by (topic entity, maximum hop count), as many questions can share the same topic entity
     (BFS from topic entity and keep shortest path that ends at a gold answer)
     - limitation: generated labels are noisy as the shortest path is not always the intended reasoning path
 """
 
-from collections import defaultdict, deque, OrderedDict
+from collections import defaultdict, deque
+
 
 # find shortest paths
 def find_shortest_paths(kg, topic_entity_id, max_hops):
@@ -104,7 +105,7 @@ def build_supervision_from_bfs(
         if answer_id in distances
     }
 
-    # store unreachable answers from BFS within the hop limit
+    # store answers that BFS could not reach within the hop limit
     unreachable_answers = [
         name
         for name in answer_names
@@ -125,7 +126,7 @@ def build_supervision_from_bfs(
     # store all unique entities appearing on a shortest path from topic entity to a gold answer
     path_entity_ids = set()
 
-    # traverse from each reachbale gold answer to reconstruct relations and entities to reach topic entity
+    # traverse from each reachable gold answer to reconstruct relations and entities to reach topic entity
     for answer_id in reachable_answer_ids:
 
         stack = [answer_id]
@@ -204,6 +205,7 @@ def build_supervision(kg, example, max_hops):
         distances,
         predecessors
     )
+
 
 # validate supervision labels
 def validate_supervision(kg, supervision, max_hops):
@@ -339,30 +341,25 @@ def build_supervision_dataset(
         cache_key = (topic_id, max_hops)
 
         if cache_key in bfs_cache:
-
             # reuse previously calculated shortest paths
             distances, predecessors = bfs_cache[cache_key]
-
-            # move current entry to newest position in the cache
-            bfs_cache.move_to_end(cache_key)
 
             bfs_cache_hits += 1
 
         else:
-
             # no cached BFS result exists - calculate path
             distances, predecessors = find_shortest_paths(
                 kg,
                 topic_id,
                 max_hops
             )
-
             bfs_runs += 1
             bfs_cache[cache_key] = (distances, predecessors)
 
-            # remove oldest entry if the cache is too large
+            # remove oldest entry (the first key) if the cache is too large
             if len(bfs_cache) > bfs_cache_size:
-                bfs_cache.popitem(last=False)
+                oldest_key = next(iter(bfs_cache))
+                del bfs_cache[oldest_key]
 
         # generate question-specific labels using the shared BFS result
         supervision = build_supervision_from_bfs(

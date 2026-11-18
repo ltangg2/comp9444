@@ -1,19 +1,14 @@
-# TO UPDATE COMMENTS
-
 """
-INFERENCE: the iterative "pull" loop that answers one question.
+INFERENCE: the iterative "pull" loop that answers one question
 
-Why this exists
----------------
-At test time there is no BFS teacher. The model must find the answer itself:
+- at test time, there is no BFS teacher, model must find the answer itself
+- iteration 1 = start at topic entity, retrieve the best facts
+    - encode graph so far
+    - PullNodeScorer picks entities worth expanding
+- iteration 2 = retrieve facts around those entities and encode again
+    - AnswerScorer ranks EVERY entity in the subgraph after last iteration
 
-  iteration 1: start at the topic entity, retrieve its best facts
-  -> encode the graph so far -> PullNodeScorer picks entities worth expanding
-  iteration 2: retrieve facts around those entities, encode again
-  -> after the last iteration, AnswerScorer ranks EVERY entity in the subgraph
-
-If the right facts are never retrieved, the answer cannot be ranked. That is why
-evaluate_inference.py reports "answer_coverage" next to Hits@K.
+if the right facts are never retrieved, the answer cannot be ranked - see answer coverage
 """
 
 from retrieval import QuestionSubgraph, retrieve_facts
@@ -33,25 +28,30 @@ def run_retrieval_pipeline(
     verbose=False,
 ):
     """
-    Args:
-        question_vector:  shape (1, embedding_dim).
-        relation_scores:  shape (num_relations,), from RelationScorer.
-        max_hops:         number of retrieval iterations (2 for 2-hop MetaQA).
-        max_facts_per_entity: facts retrieved each time an entity is expanded.
-        top_k_pull_nodes: entities expanded after the first iteration.
+    parameters:
+        - question_vector: shape (1, embedding_dim)
+        - relation_scores: shape (num_relations,), from RelationScorer
+        - max_hops: number of retrieval iterations (2 for 2-hop MetaQA)
+        - max_facts_per_entity: facts retrieved each time an entity is expanded
+        - top_k_pull_nodes: entities expanded after first iteration
 
-    Returns a dict with the final subgraph, entity IDs/vectors, answer logits and
-    scores (aligned with entity_ids), and a per-iteration retrieval_trace.
+    returns a dictionary with
+        - the final subgraph
+        - entity IDs/vectors
+        - answer logits
+        - scores (aligned with entity_ids)
+        - per-iteration retrieval_trace
     """
 
     retrieval_trace = []
 
-    # The graph starts as just the topic entity.
     subgraph = QuestionSubgraph()
     subgraph.add_entity(topic_entity_id)
 
-    expanded_entities = set()     # never expand the same entity twice
-    frontier = [topic_entity_id]  # entities to expand this iteration
+    expanded_entities = set()
+
+    # entities to expand this iteration
+    frontier = [topic_entity_id]
 
     entity_ids, entity_vectors = None, None
 
@@ -64,7 +64,7 @@ def run_retrieval_pipeline(
 
         expanded_entities.update(frontier)
 
-        # Pull in the best facts around the frontier entities.
+        # pull in the best facts around the frontier entities
         subgraph, new_entity_ids = retrieve_facts(
             kg=kg,
             subgraph=subgraph,
@@ -78,16 +78,16 @@ def run_retrieval_pipeline(
                   f"+{len(new_entity_ids)} entities, "
                   f"{len(subgraph.fact_ids)} facts total")
 
-        # Re-encode the whole subgraph so vectors reflect the new facts.
+        # re-encode whole subgraph so vectors reflect the new facts
         entity_ids, entity_vectors = graph_encoder(
             kg, subgraph, question_vector, topic_entity_id=topic_entity_id
         )
 
-        # After the final retrieval there is nothing left to select.
+        # after the final retrieval there is nothing left to select
         if iteration == max_hops - 1:
             break
 
-        # Candidates for the next expansion: entities not expanded yet.
+        # candidates for the next expansion - entities not expanded yet
         candidate_positions = [
             position
             for position, entity_id in enumerate(entity_ids)
@@ -106,8 +106,7 @@ def run_retrieval_pipeline(
 
         _, pull_scores = pull_scorer(candidate_vectors, candidate_questions)
 
-        # Keep the top-k highest scoring candidates (a discrete decision, so
-        # no gradients flow through it).
+        # keep top-k highest scoring candidates
         k = min(top_k_pull_nodes, len(candidate_positions))
         selected = pull_scores.detach().topk(k).indices.tolist()
 
@@ -119,15 +118,15 @@ def run_retrieval_pipeline(
 
         frontier = [entity_ids[candidate_positions[p]] for p in selected]
 
-    # The loop always ends right after an encode of the final subgraph (the
-    # subgraph only changes immediately before an encode), so those vectors
-    # can be reused. Only encode again in the degenerate max_hops == 0 case.
+    # loop ends after an encode of the final subgraph (subgraph changes immediately before an encode)
+    # those vectorsmcan be reused
+    # only encode again in the degenerate max_hops == 0 case
     if entity_vectors is None:
         entity_ids, entity_vectors = graph_encoder(
             kg, subgraph, question_vector, topic_entity_id=topic_entity_id
         )
 
-    # Score every entity in the final subgraph as a possible answer.
+    # score every entity in the final subgraph as a possible answer
     question_vectors = question_vector.expand(len(entity_ids), -1)
     answer_logits, answer_scores = answer_scorer(entity_vectors, question_vectors)
 

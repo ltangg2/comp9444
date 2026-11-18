@@ -20,6 +20,7 @@ class QATrainingDataset(Dataset):
     - supervision is used to construct the question-specific graph during training
     """
 
+
     def __init__(self, examples, targets, supervision):
 
         if not (len(examples) == len(targets) == len(supervision)):
@@ -31,8 +32,10 @@ class QATrainingDataset(Dataset):
         self.targets = targets
         self.supervision = supervision
 
+
     def __len__(self):
         return len(self.examples)
+
 
     def __getitem__(self, index):
 

@@ -1,21 +1,18 @@
-# TO UPDATE COMMENTS
-
 """
-TRAINING (loss computation): run one batch through the model and compute 3 losses.
+TRAINING (loss computation): run one batch through the model and compute 3 losses
 
-The model is trained on three tasks at once (multi-task learning), all with
+the model is trained on three tasks at once (multi-task learning), all with
 binary cross-entropy:
+    - relation loss = which of the 18 relation types are relevant to this question
+        - labels: relations on the BFS shortest paths to the answers
+    - pull loss = which entities at distance >= 1 should be expanded next
+        - labels: entities on shortest paths = 1, sampled others = 0
+    - answer loss = is this candidate entity a correct answer
+        - labels: gold answers = 1, sampled non-answers = 0
 
-  relation loss  Which of the 18 relation types are relevant to this question?
-                 (Labels: relations on the BFS shortest paths to the answers.)
-  pull loss      Which entities at distance >= 1 should be expanded next?
-                 (Labels: entities on shortest paths = 1, sampled others = 0.)
-  answer loss    Is this candidate entity a correct answer?
-                 (Labels: gold answers = 1, sampled non-answers = 0.)
-
-Teacher forcing: the graph each question is encoded on is built from the BFS
+teacher forcing = the graph each question is encoded on is built from the BFS
 supervision (training_utils.build_training_subgraph), not from the model's own
-retrieval, so the scorers get sensible inputs from the very first step.
+retrieval
 """
 
 import torch
@@ -50,20 +47,19 @@ def compute_batch_losses(
     max_edges_per_parent=None,
 ):
     """
-    Returns (total_loss, relation_loss, pull_loss, answer_loss).
+    returns (total_loss, relation_loss, pull_loss, answer_loss)
 
-    `device` is where the model lives. Candidate bookkeeping tensors from the
-    DataLoader stay on the CPU (they are only used for indexing); the tensors
-    that feed the network are moved to `device` here.
+    - `device` = where the model lives
+        - tensors that feed the network are moved to `device`
     """
 
-    # 1. Encode all questions in the batch.            -> (batch_size, 128)
+    # encode all questions in the batch (batch_size, 128)
     question_vectors = question_encoder(
         batch["question_tokens"].to(device),
-        batch["question_lengths"],  # stays on CPU (pack_padded_sequence needs that)
+        batch["question_lengths"],
     )
 
-    # 2. Relation prediction: one multi-hot target per question.
+    # relation prediction: one multi-hot target per question
     relation_logits, _ = relation_scorer(question_vectors)
     relation_loss = nn.BCEWithLogitsLoss()(
         relation_logits, batch["relation_targets"].to(device)
@@ -77,7 +73,7 @@ def compute_batch_losses(
     if max_edges_per_parent is not None:
         subgraph_kwargs["max_edges_per_parent"] = max_edges_per_parent
 
-    # 3. The graph differs per question, so questions are processed one by one.
+    # graph differs per question (each Q processed one by one)
     for batch_index, supervision in enumerate(batch["supervision"]):
 
         question_vector = question_vectors[batch_index]
@@ -91,14 +87,14 @@ def compute_batch_losses(
         )
         entity_to_row = {entity_id: row for row, entity_id in enumerate(entity_ids)}
 
-        # ---- pull-node loss ----
+        # pull-node loss
         mask = batch["pull_batch_indices"] == batch_index
         pull_ids = batch["pull_entity_ids"][mask]
         pull_labels = batch["pull_labels"][mask]
         pull_iterations = batch["pull_iterations"][mask]
 
-        # Iteration 0 is the topic entity: it is ALWAYS expanded, so there is no
-        # decision to learn. Training starts from iteration 1.
+        # iteration 0 = topic entity (always expanded)
+        # no decision to learn - training starts from iteration 1
         keep = pull_iterations > 0
         pull_ids, pull_labels = pull_ids[keep], pull_labels[keep]
 
@@ -109,7 +105,7 @@ def compute_batch_losses(
             )
             pull_losses.append(pull_criterion(logits, pull_labels.to(device)))
 
-        # ---- answer loss ----
+        # answer loss
         mask = batch["answer_batch_indices"] == batch_index
         answer_ids = batch["answer_entity_ids"][mask]
         answer_labels = batch["answer_labels"][mask]
@@ -121,12 +117,12 @@ def compute_batch_losses(
             )
             answer_losses.append(answer_criterion(logits, answer_labels.to(device)))
 
-    # 4. Average over questions. A batch may have no pull decisions at all
-    # (e.g. 1-hop); use a zero that is still attached to the graph.
+    # average over questions - a batch may have no pull decisions at all
+    # (e.g. 1-hop) use a zero still attached to the graph
     zero = question_vectors.sum() * 0.0
     pull_loss = torch.stack(pull_losses).mean() if pull_losses else zero
     answer_loss = torch.stack(answer_losses).mean() if answer_losses else zero
 
-    # Equal weights for the three tasks.
+    # equal weights for the three tasks
     total_loss = relation_loss + pull_loss + answer_loss
     return total_loss, relation_loss, pull_loss, answer_loss

@@ -1,15 +1,11 @@
-# UPDATE COMMENTS BELOW
-
 """
+collect every results/*.json written by evaluate_inference.py (--output ...) into
+one comparison table and save it as results/summary.csv for the report
+- python summarise_results.py
+python summarise_results.py results/hop2_test_20k.json results/hop2_test_full.json
 
-Collect every results/*.json written by evaluate_inference.py (--output ...) into
-one comparison table, and save it as results/summary.csv for the report.
-
-  python summarise_results.py
-  python summarise_results.py results/hop2_test_20k.json results/hop2_test_full.json
-
-Each row = one evaluation run (file + retrieval setting). Compare rows only when
-they use the same split (test) and the same hop.
+- each row = one evaluation run (file + retrieval setting)
+    - compare rows only when they use the same split (test) and the same hop
 """
 import csv
 import glob

@@ -68,7 +68,6 @@ def build_training_targets(
     # weak question-level approximation as a relation may be useful from an entity that is not on
     # one of the shortest paths retained by BFS
 
-
     # pull-node prediction targets
     pull_candidates = []
 
@@ -128,7 +127,6 @@ def build_training_targets(
             })
 
     # answer prediction targets
-
 
     # all reachable gold answers = positive answer candidates
     positive_answer_ids = sorted(reachable_answers)
@@ -207,6 +205,3 @@ def build_training_targets_dataset(
         training_examples.append(targets)
 
     return training_examples
-
-# QUESTIONS
-# what does it mean to sample negatives and positives respectively? why do we do it? and how do we do it (i.e. what is criteria for something to be positive vs negative)

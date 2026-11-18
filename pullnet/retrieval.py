@@ -1,61 +1,56 @@
-# TO UPDATE COMMENTS
-
 """
-RETRIEVAL: the question-specific mini-graph, and how facts get added to it.
+RETRIEVAL: the question-specific mini-graph, and how facts get added to it
 
-Why this exists
----------------
-The full KB has ~135k facts; we cannot run a neural network over all of it for
-every question. PullNet's key idea is to start at the topic entity and PULL IN
-only a small, relevant slice of the KB. QuestionSubgraph is the container for
-that slice, and retrieve_facts() is the step that grows it.
+- ~135k facts in full KB (cannot run a NN over all of it for every Q)
+    - start at topic entity and pull the relevant slice of the KB
+    - QuestionSubgraph = container for the KB segment
+    - retrieve_facts = grows the selected KB segment
 
-Used at inference time (pipeline.py). Training uses a teacher-forced version
-of the same container (training_utils.py).
+- this file is used in pipeline.py
+    - training uses a teacher-forced version of the same container (training_utils.py)
 """
-
-from dataclasses import dataclass, field
 
 import torch
 
 
-@dataclass
 class QuestionSubgraph:
     """
-    The part of the KB retrieved for ONE question.
+    selects the part of the KB retrieved for one Q
 
-    The full KnowledgeGraph is never modified; this object only records which
-    entity IDs and fact IDs have been selected.
+    - records which entity IDs and fact IDs have been selected
+    - full KG is not modified
     """
 
-    entity_ids: set = field(default_factory=set)
-    fact_ids: set = field(default_factory=set)
 
-    # Each traversal is (source_entity_id, fact_id, relation_id, neighbour_id).
-    # relation_id is direction-aware (it may be an __inv relation).
-    traversals: list = field(default_factory=list)
+    def __init__(self):
+        self.entity_ids = set()
+        self.fact_ids = set()
 
-    # Set of the keys already stored in `traversals`, so duplicate checks are
-    # O(1). (The earlier version rebuilt a set from the whole list on every
-    # call, which became quadratic for large graphs.)
-    _traversal_keys: set = field(default_factory=set, repr=False)
+        # each traversal is (source_entity_id, fact_id, relation_id, neighbour_id)
+        self.traversals = []
+
+        # the same traversals in a set to quickly check if a key has already been stored
+        self.traversal_keys = set()
+
 
     def add_entity(self, entity_id):
         self.entity_ids.add(entity_id)
 
+
     def add_fact(self, fact_id):
         self.fact_ids.add(fact_id)
 
+
     def add_traversal(self, source_entity_id, traversal):
-        """Record that `traversal` was followed away from `source_entity_id`."""
+        """record that `traversal` was followed away from `source_entity_id`"""
         key = (
             source_entity_id,
             traversal.fact_id,
             traversal.relation_id,
             traversal.neighbour_id,
         )
-        if key not in self._traversal_keys:
-            self._traversal_keys.add(key)
+        if key not in self.traversal_keys:
+            self.traversal_keys.add(key)
             self.traversals.append(key)
 
 
@@ -67,25 +62,26 @@ def retrieve_facts(
     max_facts_per_entity=10,
 ):
     """
-    Expand each entity in `entity_ids`: fetch its highest-scoring facts and add
-    them (and the entities they lead to) to the subgraph.
+    expand each entity in `entity_ids`
+    - fetch its highest-scoring facts and add them (and the entities they lead to) to the subgraph
+    - "highest-scoring" uses the RelationScorer's output:
+        - each fact is scored by the question-relevance of the relation used to traverse it
+        - E.g. for "who directed [X]?" the `directed_by` facts are preferred over `has_tags`
 
-    "Highest-scoring" uses the RelationScorer's output: each fact is scored by
-    the question-relevance of the relation used to traverse it. So for
-    "who directed [X]?" the `directed_by` facts are preferred over `has_tags`.
+    parameters:
+        - relation_scores:
+            - 1-D tensor, one score per direction-aware relation
+        - max_facts_per_entity:
+            - cap on facts taken per expanded entity
+            - this stops hub entities (e.g. the genre "Drama", 4,300 facts) from
+            flooding the subgraph
+            - is also a recall limit (e.g. answer is not retrieved if it is not among the top-k facts)
 
-    Args:
-        relation_scores: 1-D tensor, one score per direction-aware relation.
-        max_facts_per_entity: cap on facts taken per expanded entity. This is
-            what stops hub entities (e.g. the genre "Drama", 4,300 facts) from
-            flooding the subgraph. It is also a recall limit: if the answer is
-            not among the top-k facts, it is never retrieved.
-
-    Returns:
-        (subgraph, new_entity_ids)
+    returns:
+        - (subgraph, new_entity_ids)
     """
     new_entity_ids = set()
-    relation_scores = relation_scores.detach()  # retrieval is a discrete choice
+    relation_scores = relation_scores.detach()
 
     for entity_id in entity_ids:
 
@@ -93,7 +89,7 @@ def retrieve_facts(
         if not candidates:
             continue
 
-        # Score every candidate traversal in ONE tensor operation.
+        # score every candidate traversal in one tensor operation
         relation_ids = torch.tensor(
             [t.relation_id for t in candidates],
             dtype=torch.long,
@@ -101,6 +97,7 @@ def retrieve_facts(
         )
         scores = relation_scores[relation_ids]
 
+        # keep the top-k highest scoring facts
         k = min(max_facts_per_entity, len(candidates))
         top_positions = torch.topk(scores, k=k).indices.tolist()
 

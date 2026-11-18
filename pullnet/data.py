@@ -2,18 +2,16 @@
 DATA PREPARATION (part 1): load raw MetaQA files
 
 Files in MetaQA:
-
   kb.txt
-      movie knowledge base (one fact per line):  subject|relation|object
-      e.g.  Kismet|directed_by|William Dieterle
+      - movie knowledge base (one fact per line):  subject|relation|object
+      - e.g.  Kismet|directed_by|William Dieterle
 
   {1,2,3}-hop/vanilla/qa_{train,dev,test}.txt
-      One question per line:  question<TAB>answer1|answer2|...
-      e.g.  who directed the films starring [Kismet]?<TAB>...
-      
-      the topic entity (where reasoning starts) is wrapped in [square brackets]
+      - One question per line:  question<TAB>answer1|answer2|...
+      - e.g.  who directed the films starring [Kismet]?<TAB>...
+        - the topic entity (where reasoning starts) is wrapped in [square brackets]
 
-this file READS these MetaQA files and returns plain Python objects - does no
+this file reads these MetaQA files and returns plain Python objects - does no
 modelling - downstream (graph.py, supervision.py, ...) files build on it
 """
 from __future__ import annotations
@@ -50,7 +48,7 @@ def load_knowledge_graph(kb_path):
             if not line:
                 continue
             parts = line.split("|")
-            # Every line must have exactly 3 non-empty parts.
+            # every line must have exactly 3 non-empty parts
             if len(parts) != 3 or not all(part.strip() for part in parts):
                 malformed.append((line_number, line))
                 continue
@@ -77,7 +75,7 @@ def load_qa_dataset(file_path):
             if not line:
                 continue
 
-            # Q and A aer separated by a tab
+            # Q and A are separated by a tab
             parts = line.split("\t", 1)
             if len(parts) != 2:
                 raise ValueError(
@@ -118,8 +116,3 @@ def load_all_datasets(data_dir, hops=HOP_COUNTS):
                 raise FileNotFoundError(f"Missing QA dataset: {path}")
             datasets[hop][split] = load_qa_dataset(path)
     return datasets
-
-# QUESTIONS
-# how does HOP_COUNTS and SPLIT work
-# how does this work? it allows us to specify what to run in command line? pass hops=(2,) to avoid loading unnecessary 1-hop and 3-hop files
-# remove sanity check?

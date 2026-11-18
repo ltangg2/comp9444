@@ -1,25 +1,21 @@
-# TO UPDATE COMMENTS
-
 """
-TRAINING: train all five components together and save the best checkpoint.
+TRAINING: train all five components together and save the best checkpoint
 
-Quick start
------------
-  python train.py --train-examples 500 --dev-examples 200 --epochs 1   # smoke test
-  python train.py --train-examples 20000 --dev-examples 2000           # real run
+sample run (500 examples, 200 validation samples): python train.py --train-examples 500 --dev-examples 200 --epochs 1
+full test run (all examples, 2000 validation samples): python train.py --train-examples 20000 --dev-examples 2000
 
-How a run is organised
-----------------------
-  1. Load the KB and the 2-hop QA data; build the question vocabulary.
-  2. Shuffle the training questions once (fixed seed) and optionally keep a subset.
-  3. Each epoch walks through the data in CHUNKS of questions. For each chunk:
-        BFS supervision -> training targets -> DataLoader -> optimiser steps.
-     Chunking exists so we never hold BFS results for the whole dataset in memory.
-  4. After every epoch evaluate the loss on the dev set; save the checkpoint when
-     it improves; stop early if it fails to improve `--patience` times.
+workflow per run:
+    1. load KB and the 2-hop QA data (builds the question vocabulary)
+    2. shuffle training questions once (fixed seed) and optionally keep a subset
+    3. each epoch walks through data in CHUNKS of questions
+        - for each chunk:
+            - BFS supervision -> training targets -> DataLoader -> optimiser steps
+        - use chunking to avoid holding BFS results for the whole dataset in memory
+    4. after every epoch evaluate the loss on the dev set
+        - save checkpoint when it improves
+        - stop early if it fails to improve `--patience` times
 
-Dev loss is only used to choose the checkpoint. The real quality measure is
-evaluate_inference.py (Hits@K on the test split).
+- dev loss is used to choose the checkpoint only
 """
 
 import argparse
@@ -45,9 +41,7 @@ from model_utils import (
     save_checkpoint,
 )
 
-# ---------------------------------------------------------------------------
-# Command-line options
-# ---------------------------------------------------------------------------
+# command-line options
 parser = argparse.ArgumentParser()
 parser.add_argument("--hop", type=int, default=config.HOP)
 parser.add_argument("--train-examples", type=int, default=20000,
@@ -79,9 +73,7 @@ CHECKPOINT_PATH = config.checkpoint_path(HOP)
 
 print("Device:", DEVICE)
 
-# ---------------------------------------------------------------------------
-# 1. Load data
-# ---------------------------------------------------------------------------
+# load data
 print("Loading knowledge graph...")
 kg = KnowledgeGraph(load_knowledge_graph(config.KB_PATH))
 print(f"  {kg.num_entities} entities, {kg.num_facts} facts, "
@@ -93,9 +85,7 @@ all_dev = list(datasets[HOP]["dev"])
 
 
 def subsample(examples, n, seed):
-    """Shuffle once with a fixed seed, then keep the first n (0 = keep all).
-    Shuffling first matters: the files may be ordered by question template, so
-    'the first n lines' would be a biased subset."""
+    """shuffle once with a fixed seed, then keep the first n (0 = keep all)"""
     examples = list(examples)
     random.Random(seed).shuffle(examples)
     return examples if n == 0 else examples[:n]
@@ -106,16 +96,12 @@ dev_examples = subsample(all_dev, args.dev_examples, args.seed + 1)
 print(f"  train: {len(train_examples)}/{len(all_train)}  "
       f"dev: {len(dev_examples)}/{len(all_dev)}")
 
-# ---------------------------------------------------------------------------
-# 2. Vocabulary (from the full training split only - never dev/test)
-# ---------------------------------------------------------------------------
+# vocabulary (from the full training split only - not dev/test)
 vocab = QuestionVocabulary()
 vocab.build([e["question"] for e in all_train])
 print("Vocabulary size:", len(vocab))
 
-# ---------------------------------------------------------------------------
-# 3. Model + optimiser
-# ---------------------------------------------------------------------------
+# model + optimiser
 components = build_components(
     kg,
     vocab_size=len(vocab),
@@ -136,16 +122,14 @@ print("Trainable parameters:", sum(p.numel() for p in parameters))
 
 collate_fn = partial(collate_qa_batch, vocab=vocab)
 
-# BFS results are reused across chunks and epochs (many questions share a topic).
+# BFS results are reused across chunks and epochs (many questions share a topic)
 bfs_cache = OrderedDict()
 BFS_CACHE_SIZE = 256
 
 
-# ---------------------------------------------------------------------------
-# 4. One pass over a DataLoader
-# ---------------------------------------------------------------------------
+# one pass over a DataLoader
 def run_epoch(loader, training):
-    """Average losses over a DataLoader; update weights only if training."""
+    """average losses over a DataLoader - update weights only if training"""
     set_mode(components, training)
     sums = {"total": 0.0, "relation": 0.0, "pull": 0.0, "answer": 0.0}
     count = 0
@@ -176,15 +160,14 @@ def run_epoch(loader, training):
     return {k: v / count for k, v in sums.items()}
 
 
-# ---------------------------------------------------------------------------
-# 5. One epoch, processed chunk by chunk
-# ---------------------------------------------------------------------------
+# one epoch, processed chunk by chunk
 def run_chunked_epoch(examples, training, epoch_number):
     chunks = [
         (i, examples[start:start + args.chunk_size])
         for i, start in enumerate(range(0, len(examples), args.chunk_size))
     ]
-    if training:  # different chunk order every epoch
+    # different chunk order every epoch
+    if training:
         random.Random(args.seed + epoch_number).shuffle(chunks)
 
     name = "Train" if training else "Dev"
@@ -197,8 +180,8 @@ def run_chunked_epoch(examples, training, epoch_number):
 
     for position, (chunk_index, chunk) in enumerate(chunks, start=1):
 
-        # BFS supervision -> sampled targets (seeded by chunk index so the
-        # sampled negatives are the same every epoch).
+        # BFS supervision -> sampled targets (seeded by chunk index so
+        # sampled negatives are the same every epoch)
         supervision, stats = build_supervision_dataset(
             kg, chunk, max_hops=HOP,
             bfs_cache_size=BFS_CACHE_SIZE, bfs_cache=bfs_cache,
@@ -220,11 +203,11 @@ def run_chunked_epoch(examples, training, epoch_number):
         gold += stats["total_gold_answers"]
         reachable += stats["total_reachable_answers"]
 
-        # Free this chunk's memory before preparing the next.
+        # free this chunk's memory before preparing the next
         del loader, targets, supervision
         gc.collect()
 
-        # Progress with timing, so a slow run is visible straight away.
+        # runtime progress
         elapsed = time.time() - start_time
         eta = elapsed / position * (len(chunks) - position)
         print(f"  {name} chunk {position}/{len(chunks)} | "
@@ -234,10 +217,7 @@ def run_chunked_epoch(examples, training, epoch_number):
 
     return {k: v / seen for k, v in sums.items()}, reachable, gold
 
-
-# ---------------------------------------------------------------------------
-# 6. Training loop with early stopping
-# ---------------------------------------------------------------------------
+# training loop with early stopping
 best_dev_loss = float("inf")
 best_epoch = 0
 bad_epochs = 0

@@ -1,16 +1,7 @@
-# TO UPDATE COMMENTS
-
 """
-Helpers shared by train.py and both evaluation scripts: build the five model
-components, save them, and load them back.
-
-Why this exists
----------------
-The same five components were being re-created by hand in three scripts. If one
-copy drifted (different embedding size, different number of message-passing
-rounds) loading a checkpoint would fail or silently give wrong results. The
-architecture settings are now saved INSIDE the checkpoint ("model_config") and
-used to rebuild the model on load.
+helper file shaused red by train.py and both evaluation scripts
+- builds, saves and loads the five model components
+    - settings saved inside checkpoint (model_config) and used to rebuild model on load
 """
 
 import torch
@@ -75,7 +66,7 @@ def all_parameters(components):
 
 
 def set_mode(components, training):
-    """Switch every component between training and evaluation mode."""
+    """switch every component between training and evaluation mode"""
     for name in COMPONENT_NAMES:
         components[name].train(training)
 
@@ -97,11 +88,10 @@ def save_checkpoint(path, components, vocab, epoch, dev_loss, model_config,
 
 def load_checkpoint(path, kg, device="cpu"):
     """
-    Rebuild the model from a checkpoint and put it in evaluation mode.
+    rebuild model from a checkpoint and put it in evaluation mode
 
-    Returns (components, vocab, checkpoint).
-    weights_only=False is needed because the vocabulary object is pickled; only
-    load checkpoints you created yourself.
+    - returns (components, vocab, checkpoint)
+    weights_only=False is needed because the vocabulary object is pickled
     """
     checkpoint = torch.load(path, map_location="cpu", weights_only=False)
 

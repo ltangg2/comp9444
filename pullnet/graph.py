@@ -1,7 +1,7 @@
 """
 DATA PREPARATION (part 2): convert KB triples into a traversable graph
 
-- Neural networks work on integers and BFS runs multiple lookups to find
+- neural networks work on integers and BFS runs multiple lookups to find
   reachable nodes from a given entity
     - convert strings (E.g. entities, relations and facts) into IDs
 
@@ -9,73 +9,94 @@ DATA PREPARATION (part 2): convert KB triples into a traversable graph
   but q can ask about the inverse relation (E.g. which movies did the director of [Kismet] direct?)
     - convert 9 original relations into 18 directed relations (9 original + 9 inverse)
 """
-from __future__ import annotations
 from collections import defaultdict
-from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
 class Fact:
-    fact_id: int
-    subject_id: int
-    relation_id: int
-    object_id: int
+    """
+    one KB triple stored as integer IDs
+
+    - fact_id: position of the triple in kb.txt
+    - subject_id, relation_id, object_id: IDs of the three parts of the triple
+    """
+
+    def __init__(self, fact_id, subject_id, relation_id, object_id):
+        self.fact_id = fact_id
+        self.subject_id = subject_id
+        self.relation_id = relation_id
+        self.object_id = object_id
 
 
-@dataclass(frozen=True)
 class FactTraversal:
-    fact_id: int
-    relation_id: int
-    neighbour_id: int
+    """
+    one way of stepping along a fact, starting from one of its two entities
+
+    - fact_id: the fact being followed
+    - relation_id: direction-aware relation (original relation or its __inv twin)
+    - neighbour_id: the entity reached after following the fact
+    """
+
+
+    def __init__(self, fact_id, relation_id, neighbour_id):
+        self.fact_id = fact_id
+        self.relation_id = relation_id
+        self.neighbour_id = neighbour_id
 
 
 class KnowledgeGraph:
     """
-    Each original KB triple is one fact node.
-    Entity IDs: [0, num_entities)
-    Fact graph-node IDs: [num_entities, num_entities + num_facts)
-    Incidence role 0=subject, 1=object.
-    Inverse relation labels are traversal labels, not duplicate facts.
+    each original KB triple is one fact
+
+    - entity IDs: [0, num_entities)
+    - fact graph-node IDs: [num_entities, num_entities + num_facts)
+    - incidence role: 0 = subject, 1 = object
+    - inverse relation labels are traversal labels, not duplicate facts
     """
+
+
     def __init__(self, triples):
         self.triples = list(triples)
 
         # collect all entity and relation names
-        entity_names, original_relations = set(), set()
+        entity_names = set()
+        original_relations = set()
         for subject, relation, obj in self.triples:
-            entity_names.update((subject, obj))
+            entity_names.add(subject)
+            entity_names.add(obj)
             original_relations.add(relation)
 
         # assign ID to each entity (sort for IDs to be reproducible)
-        self.entity_to_id = {
-            name: idx for idx, name in enumerate(sorted(entity_names))
-        }
-        self.id_to_entity = {
-            idx: name for name, idx in self.entity_to_id.items()
-        }
+        self.entity_to_id = {}
+        for idx, name in enumerate(sorted(entity_names)):
+            self.entity_to_id[name] = idx
+        self.id_to_entity = {}
+        for name, idx in self.entity_to_id.items():
+            self.id_to_entity[idx] = name
 
         # assign ID to each relation and inverse relation (sort for IDs to be reproducible)
         relation_names = set(original_relations)
-        relation_names.update(r + "__inv" for r in original_relations)
-        self.relation_to_id = {
-            name: idx for idx, name in enumerate(sorted(relation_names))
-        }
-        self.id_to_relation = {
-            idx: name for name, idx in self.relation_to_id.items()
-        }
+        for relation in original_relations:
+            relation_names.add(relation + "__inv")
+
+        self.relation_to_id = {}
+        for idx, name in enumerate(sorted(relation_names)):
+            self.relation_to_id[name] = idx
+        self.id_to_relation = {}
+        for name, idx in self.relation_to_id.items():
+            self.id_to_relation[idx] = name
 
         self.num_entities = len(self.entity_to_id)
         self.num_relations = len(self.relation_to_id)
         self.num_facts = len(self.triples)
         self.num_graph_nodes = self.num_entities + self.num_facts
 
-        # build facts and adjacency lists
         self.facts = []
 
-        # form a list of FactTraversal using entity ID
+        # entity ID -> list of FactTraversal (everything we can step along from that entity)
         self.entity_to_facts = defaultdict(list)
+
+        # (entity ID, fact ID, role) where role 0 = subject and 1 = object
         self.incidence_edges = []
-        # self._fact_tensors = None  # built lazily by fact_tensors()
 
         for fact_id, (subject, relation, obj) in enumerate(self.triples):
             s_id = self.entity_to_id[subject]
@@ -97,65 +118,51 @@ class KnowledgeGraph:
                 FactTraversal(fact_id, r_inv_id, s_id)
             )
 
-    # @property
-    # def num_graph_nodes(self):
-    #     return self.num_entities + self.num_facts
 
     def entity_id(self, name):
-        try:
-            return self.entity_to_id[name]
-        except KeyError as exc:
-            raise KeyError(f"Entity not found in KB: {name!r}") from exc
+        if name not in self.entity_to_id:
+            raise KeyError(f"Entity not found in KB: {name!r}")
+        return self.entity_to_id[name]
+
 
     def entity_name(self, entity_id):
         return self.id_to_entity[entity_id]
 
+
     def relation_name(self, relation_id):
         return self.id_to_relation[relation_id]
+
 
     def fact_node_id(self, fact_id):
         if not 0 <= fact_id < self.num_facts:
             raise IndexError(f"Invalid fact ID: {fact_id}")
         return self.num_entities + fact_id
 
+
     def get_facts_for_entity(self, entity_id):
+        """all traversals leaving this entity (empty list if it has none)"""
         return self.entity_to_facts.get(entity_id, [])
 
-    # def fact_tensors(self):
-    #     """
-    #     Return three LongTensors (subject_ids, relation_ids, object_ids), each of
-    #     length num_facts, where position i describes fact i.
-
-    #     Built once and cached. The graph encoder uses them to look up thousands of
-    #     facts in one vectorised operation instead of one Python call per fact.
-    #     (torch is imported here so the rest of this file stays pure Python.)
-    #     """
-    #     if self._fact_tensors is None:
-    #         import torch
-    #         self._fact_tensors = (
-    #             torch.tensor([f.subject_id for f in self.facts], dtype=torch.long),
-    #             torch.tensor([f.relation_id for f in self.facts], dtype=torch.long),
-    #             torch.tensor([f.object_id for f in self.facts], dtype=torch.long),
-    #         )
-    #     return self._fact_tensors
 
     def get_fact(self, fact_id):
         return self.facts[fact_id]
 
+
     def describe_fact(self, fact_id):
         return self.triples[fact_id]
 
+
     def to_adjacency_list(self):
-        """entity ID -> list of (relation ID, neighbour ID) """
+        """entity ID -> list of (relation ID, neighbour ID)"""
         adjacency = defaultdict(list)
         for entity_id, traversals in self.entity_to_facts.items():
-            adjacency[entity_id].extend(
-                (item.relation_id, item.neighbour_id)
-                for item in traversals
-            )
+            for item in traversals:
+                adjacency[entity_id].append((item.relation_id, item.neighbour_id))
         return adjacency
 
+
     def validate(self):
+        """sanity check - every fact should give exactly two incidence edges"""
         expected = 2 * self.num_facts
         return {
             "num_entities": self.num_entities,
@@ -166,11 +173,3 @@ class KnowledgeGraph:
             "expected_incidence_edges": expected,
             "incidence_count_correct": len(self.incidence_edges) == expected,
         }
-
-# QUESTIONS
-# i took my initial file and added in some of your changes
-    # are the initial imports still needed?
-    # am i able to just change class Fact and class FactTraversal to what you provided (i.e. no more @dataClass and have the actual def init)? i dont want to change knowledgeGraph
-    # commented out @property and fact_tensor() will this work? after removing them what i have is basically what you provided?
-# how does this work? it allows us to specify what to run in command line? pass hops=(2,) to avoid loading unnecessary 1-hop and 3-hop files
-# remove sanity check?
