@@ -1,0 +1,83 @@
+[
+  {
+    "line": 1711,
+    "question": "who starred movies for the director of [I Wanna Hold Your Hand]",
+    "entities_collected": 130,
+    "explore_steps": [
+      {
+        "iteration": 1,
+        "num_candidates": 9,
+        "num_selected": 9
+      },
+      {
+        "iteration": 2,
+        "num_candidates": 52,
+        "num_selected": 10
+      }
+    ],
+    "collected": {
+      "Robert Zemeckis": true,
+      "Thomas F. Wilson": true,
+      "Tony Gilroy": false,
+      "2002": false,
+      "2007": false,
+      "Steven Spielberg": true,
+      "The Goonies": false,
+      "Spanish": false
+    }
+  },
+  {
+    "line": 3230,
+    "question": "when did the movies release whose writers also wrote [The Bourne Identity]",
+    "entities_collected": 132,
+    "explore_steps": [
+      {
+        "iteration": 1,
+        "num_candidates": 10,
+        "num_selected": 10
+      },
+      {
+        "iteration": 2,
+        "num_candidates": 59,
+        "num_selected": 10
+      }
+    ],
+    "collected": {
+      "Robert Zemeckis": false,
+      "Thomas F. Wilson": false,
+      "Tony Gilroy": true,
+      "2002": true,
+      "2007": true,
+      "Steven Spielberg": false,
+      "The Goonies": false,
+      "Spanish": false
+    }
+  },
+  {
+    "line": 10544,
+    "question": "what languages are the movies that share screenwriters with [Close Encounters of the Third Kind] in",
+    "entities_collected": 149,
+    "explore_steps": [
+      {
+        "iteration": 1,
+        "num_candidates": 9,
+        "num_selected": 9
+      },
+      {
+        "iteration": 2,
+        "num_candidates": 62,
+        "num_selected": 10
+      }
+    ],
+    "collected": {
+      "Robert Zemeckis": false,
+      "Thomas F. Wilson": false,
+      "Tony Gilroy": false,
+      "2002": false,
+      "2007": false,
+      "Steven Spielberg": true,
+      "The Goonies": true,
+      "Spanish": false
+    }
+  }
+]

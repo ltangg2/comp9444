@@ -1,0 +1,10 @@
+saving every answer: 2026-11-18 14:18:29
+14:18:37   2000/14274 questions, 7s
+14:18:44   4000/14274 questions, 14s
+14:18:51   6000/14274 questions, 20s
+14:18:57   8000/14274 questions, 27s
+14:19:04   10000/14274 questions, 34s
+14:19:11   12000/14274 questions, 40s
+14:19:17   14000/14274 questions, 47s
+14:19:18 Saved 14274 questions to predictions/hop3_test.jsonl in 48s
+14:19:18 Averages (should match evaluate_inference.py): {'hits@1': 0.60985, 'hits@5': 0.900098, 'hits@10': 0.95075, 'mrr': 0.735774, 'recall@1': 0.169248, 'recall@5': 0.451404, 'recall@10': 0.60936}

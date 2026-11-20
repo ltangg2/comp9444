@@ -1,0 +1,512 @@
+run started: 2026-11-18 12:21:59
+code: commit 57a08f3 + local fix (pullnet/graph.py: fact_tensors() uncommented)
+run via run_with_gpu_cleanup.py (frees unused GPU memory after each chunk; no change to the model or maths)
+python 3.12.3 | torch 2.15.0+cu132 | GPU NVIDIA GeForce RTX 2070 SUPER
+command: python pullnet/train.py --hop 3   (all other settings = code defaults)
+12:22:01 Device: cuda
+12:22:01 Loading knowledge graph...
+12:22:02   43234 entities, 134741 facts, 18 direction-aware relations
+12:22:03   train: 20000/114196  dev: 2000/14274
+12:22:03 Vocabulary size: 54
+12:22:04 Trainable parameters: 5942170
+12:22:04 
+12:22:04 ============================================================
+12:22:04 EPOCH 1/5
+12:22:04 ============================================================
+12:22:04 
+12:22:04 Train: 20000 questions in 79 chunks
+12:22:19   Train chunk 1/79 | loss 1.8451 | 0.3 min elapsed, ~19.6 min left
+12:22:32   Train chunk 2/79 | loss 1.6495 | 0.5 min elapsed, ~18.4 min left
+12:22:45   Train chunk 3/79 | loss 1.5482 | 0.7 min elapsed, ~17.5 min left
+12:22:58   Train chunk 4/79 | loss 1.5025 | 0.9 min elapsed, ~17.1 min left
+12:23:13   Train chunk 5/79 | loss 1.4618 | 1.2 min elapsed, ~17.2 min left
+12:23:28   Train chunk 6/79 | loss 1.4335 | 1.4 min elapsed, ~17.0 min left
+12:23:43   Train chunk 7/79 | loss 1.4126 | 1.7 min elapsed, ~17.1 min left
+12:23:56   Train chunk 8/79 | loss 1.3961 | 1.9 min elapsed, ~16.6 min left
+12:24:11   Train chunk 9/79 | loss 1.3837 | 2.1 min elapsed, ~16.5 min left
+12:24:25   Train chunk 10/79 | loss 1.3715 | 2.4 min elapsed, ~16.3 min left
+12:24:40   Train chunk 11/79 | loss 1.3596 | 2.6 min elapsed, ~16.1 min left
+12:24:56   Train chunk 12/79 | loss 1.3505 | 2.9 min elapsed, ~16.0 min left
+12:25:10   Train chunk 13/79 | loss 1.3428 | 3.1 min elapsed, ~15.8 min left
+12:25:25   Train chunk 14/79 | loss 1.3330 | 3.4 min elapsed, ~15.6 min left
+12:25:41   Train chunk 15/79 | loss 1.3237 | 3.6 min elapsed, ~15.4 min left
+12:25:55   Train chunk 16/79 | loss 1.3177 | 3.8 min elapsed, ~15.2 min left
+12:26:11   Train chunk 17/79 | loss 1.3107 | 4.1 min elapsed, ~15.0 min left
+12:26:26   Train chunk 18/79 | loss 1.3030 | 4.4 min elapsed, ~14.8 min left
+12:26:41   Train chunk 19/79 | loss 1.2948 | 4.6 min elapsed, ~14.6 min left
+12:26:56   Train chunk 20/79 | loss 1.2874 | 4.9 min elapsed, ~14.4 min left
+12:27:11   Train chunk 21/79 | loss 1.2816 | 5.1 min elapsed, ~14.2 min left
+12:27:28   Train chunk 22/79 | loss 1.2747 | 5.4 min elapsed, ~14.0 min left
+12:27:43   Train chunk 23/79 | loss 1.2684 | 5.6 min elapsed, ~13.8 min left
+12:27:58   Train chunk 24/79 | loss 1.2633 | 5.9 min elapsed, ~13.5 min left
+12:28:13   Train chunk 25/79 | loss 1.2575 | 6.2 min elapsed, ~13.3 min left
+12:28:28   Train chunk 26/79 | loss 1.2511 | 6.4 min elapsed, ~13.1 min left
+12:28:43   Train chunk 27/79 | loss 1.2452 | 6.7 min elapsed, ~12.8 min left
+12:29:00   Train chunk 28/79 | loss 1.2403 | 6.9 min elapsed, ~12.6 min left
+12:29:14   Train chunk 29/79 | loss 1.2355 | 7.2 min elapsed, ~12.4 min left
+12:29:30   Train chunk 30/79 | loss 1.2305 | 7.4 min elapsed, ~12.1 min left
+12:29:45   Train chunk 31/79 | loss 1.2253 | 7.7 min elapsed, ~11.9 min left
+12:30:01   Train chunk 32/79 | loss 1.2211 | 8.0 min elapsed, ~11.7 min left
+12:30:17   Train chunk 33/79 | loss 1.2164 | 8.2 min elapsed, ~11.5 min left
+12:30:32   Train chunk 34/79 | loss 1.2119 | 8.5 min elapsed, ~11.2 min left
+12:30:48   Train chunk 35/79 | loss 1.2079 | 8.7 min elapsed, ~11.0 min left
+12:31:02   Train chunk 36/79 | loss 1.2040 | 9.0 min elapsed, ~10.7 min left
+12:31:19   Train chunk 37/79 | loss 1.1999 | 9.3 min elapsed, ~10.5 min left
+12:31:35   Train chunk 38/79 | loss 1.1961 | 9.5 min elapsed, ~10.3 min left
+12:31:51   Train chunk 39/79 | loss 1.1922 | 9.8 min elapsed, ~10.0 min left
+12:32:07   Train chunk 40/79 | loss 1.1884 | 10.1 min elapsed, ~9.8 min left
+12:32:23   Train chunk 41/79 | loss 1.1854 | 10.3 min elapsed, ~9.6 min left
+12:32:38   Train chunk 42/79 | loss 1.1825 | 10.6 min elapsed, ~9.3 min left
+12:32:53   Train chunk 43/79 | loss 1.1793 | 10.8 min elapsed, ~9.1 min left
+12:33:09   Train chunk 44/79 | loss 1.1756 | 11.1 min elapsed, ~8.8 min left
+12:33:24   Train chunk 45/79 | loss 1.1731 | 11.3 min elapsed, ~8.6 min left
+12:33:39   Train chunk 46/79 | loss 1.1706 | 11.6 min elapsed, ~8.3 min left
+12:33:56   Train chunk 47/79 | loss 1.1681 | 11.9 min elapsed, ~8.1 min left
+12:34:12   Train chunk 48/79 | loss 1.1648 | 12.1 min elapsed, ~7.8 min left
+12:34:27   Train chunk 49/79 | loss 1.1630 | 12.4 min elapsed, ~7.6 min left
+12:34:45   Train chunk 50/79 | loss 1.1598 | 12.7 min elapsed, ~7.4 min left
+12:35:00   Train chunk 51/79 | loss 1.1571 | 12.9 min elapsed, ~7.1 min left
+12:35:16   Train chunk 52/79 | loss 1.1548 | 13.2 min elapsed, ~6.9 min left
+12:35:32   Train chunk 53/79 | loss 1.1525 | 13.5 min elapsed, ~6.6 min left
+12:35:47   Train chunk 54/79 | loss 1.1503 | 13.7 min elapsed, ~6.4 min left
+12:36:03   Train chunk 55/79 | loss 1.1477 | 14.0 min elapsed, ~6.1 min left
+12:36:06   Train chunk 56/79 | loss 1.1472 | 14.0 min elapsed, ~5.8 min left
+12:36:22   Train chunk 57/79 | loss 1.1447 | 14.3 min elapsed, ~5.5 min left
+12:36:39   Train chunk 58/79 | loss 1.1430 | 14.6 min elapsed, ~5.3 min left
+12:36:55   Train chunk 59/79 | loss 1.1412 | 14.9 min elapsed, ~5.0 min left
+12:37:11   Train chunk 60/79 | loss 1.1391 | 15.1 min elapsed, ~4.8 min left
+12:37:26   Train chunk 61/79 | loss 1.1373 | 15.4 min elapsed, ~4.5 min left
+12:37:43   Train chunk 62/79 | loss 1.1355 | 15.7 min elapsed, ~4.3 min left
+12:37:58   Train chunk 63/79 | loss 1.1342 | 15.9 min elapsed, ~4.0 min left
+12:38:15   Train chunk 64/79 | loss 1.1325 | 16.2 min elapsed, ~3.8 min left
+12:38:33   Train chunk 65/79 | loss 1.1309 | 16.5 min elapsed, ~3.6 min left
+12:38:49   Train chunk 66/79 | loss 1.1290 | 16.8 min elapsed, ~3.3 min left
+12:39:04   Train chunk 67/79 | loss 1.1276 | 17.0 min elapsed, ~3.0 min left
+12:39:19   Train chunk 68/79 | loss 1.1258 | 17.3 min elapsed, ~2.8 min left
+12:39:36   Train chunk 69/79 | loss 1.1241 | 17.5 min elapsed, ~2.5 min left
+12:39:52   Train chunk 70/79 | loss 1.1222 | 17.8 min elapsed, ~2.3 min left
+12:40:07   Train chunk 71/79 | loss 1.1209 | 18.1 min elapsed, ~2.0 min left
+12:40:25   Train chunk 72/79 | loss 1.1192 | 18.4 min elapsed, ~1.8 min left
+12:40:40   Train chunk 73/79 | loss 1.1180 | 18.6 min elapsed, ~1.5 min left
+12:40:58   Train chunk 74/79 | loss 1.1163 | 18.9 min elapsed, ~1.3 min left
+12:41:13   Train chunk 75/79 | loss 1.1151 | 19.1 min elapsed, ~1.0 min left
+12:41:28   Train chunk 76/79 | loss 1.1135 | 19.4 min elapsed, ~0.8 min left
+12:41:45   Train chunk 77/79 | loss 1.1120 | 19.7 min elapsed, ~0.5 min left
+12:42:01   Train chunk 78/79 | loss 1.1111 | 20.0 min elapsed, ~0.3 min left
+12:42:16   Train chunk 79/79 | loss 1.1101 | 20.2 min elapsed, ~0.0 min left
+12:42:16 
+12:42:16 Dev: 2000 questions in 8 chunks
+12:42:30   Dev chunk 1/8 | loss 1.0036 | 0.2 min elapsed, ~1.6 min left
+12:42:43   Dev chunk 2/8 | loss 0.9884 | 0.4 min elapsed, ~1.3 min left
+12:42:57   Dev chunk 3/8 | loss 0.9990 | 0.7 min elapsed, ~1.1 min left
+12:43:11   Dev chunk 4/8 | loss 1.0011 | 0.9 min elapsed, ~0.9 min left
+12:43:25   Dev chunk 5/8 | loss 1.0036 | 1.1 min elapsed, ~0.7 min left
+12:43:41   Dev chunk 6/8 | loss 1.0022 | 1.4 min elapsed, ~0.5 min left
+12:43:54   Dev chunk 7/8 | loss 1.0014 | 1.6 min elapsed, ~0.2 min left
+12:44:06   Dev chunk 8/8 | loss 1.0021 | 1.8 min elapsed, ~0.0 min left
+12:44:06   Train loss: 1.1101 (relation 0.4120, pull 0.6071, answer 0.0910)
+12:44:06   Dev   loss: 1.0021 (relation 0.3987, pull 0.5577, answer 0.0457)
+12:44:06   Gold answers reachable within 3 hops: train 269150/269150, dev 26267/26267
+12:44:06   Saved best checkpoint -> checkpoints/hop_3_best.pt
+12:44:06 
+12:44:06 ============================================================
+12:44:06 EPOCH 2/5
+12:44:06 ============================================================
+12:44:06 
+12:44:06 Train: 20000 questions in 79 chunks
+12:44:22   Train chunk 1/79 | loss 0.9953 | 0.3 min elapsed, ~20.8 min left
+12:44:38   Train chunk 2/79 | loss 0.9911 | 0.5 min elapsed, ~20.5 min left
+12:44:54   Train chunk 3/79 | loss 0.9817 | 0.8 min elapsed, ~20.2 min left
+12:45:10   Train chunk 4/79 | loss 0.9738 | 1.1 min elapsed, ~20.2 min left
+12:45:26   Train chunk 5/79 | loss 0.9754 | 1.3 min elapsed, ~19.9 min left
+12:45:43   Train chunk 6/79 | loss 0.9783 | 1.6 min elapsed, ~19.7 min left
+12:45:59   Train chunk 7/79 | loss 0.9825 | 1.9 min elapsed, ~19.4 min left
+12:46:17   Train chunk 8/79 | loss 0.9841 | 2.2 min elapsed, ~19.4 min left
+12:46:33   Train chunk 9/79 | loss 0.9823 | 2.4 min elapsed, ~19.1 min left
+12:46:49   Train chunk 10/79 | loss 0.9847 | 2.7 min elapsed, ~18.7 min left
+12:47:06   Train chunk 11/79 | loss 0.9865 | 3.0 min elapsed, ~18.5 min left
+12:47:21   Train chunk 12/79 | loss 0.9872 | 3.3 min elapsed, ~18.1 min left
+12:47:38   Train chunk 13/79 | loss 0.9855 | 3.5 min elapsed, ~18.0 min left
+12:47:54   Train chunk 14/79 | loss 0.9860 | 3.8 min elapsed, ~17.7 min left
+12:48:10   Train chunk 15/79 | loss 0.9858 | 4.1 min elapsed, ~17.3 min left
+12:48:27   Train chunk 16/79 | loss 0.9858 | 4.4 min elapsed, ~17.1 min left
+12:48:43   Train chunk 17/79 | loss 0.9852 | 4.6 min elapsed, ~16.8 min left
+12:48:58   Train chunk 18/79 | loss 0.9859 | 4.9 min elapsed, ~16.5 min left
+12:49:12   Train chunk 19/79 | loss 0.9866 | 5.1 min elapsed, ~16.1 min left
+12:49:29   Train chunk 20/79 | loss 0.9850 | 5.4 min elapsed, ~15.9 min left
+12:49:45   Train chunk 21/79 | loss 0.9851 | 5.6 min elapsed, ~15.6 min left
+12:50:01   Train chunk 22/79 | loss 0.9845 | 5.9 min elapsed, ~15.3 min left
+12:50:16   Train chunk 23/79 | loss 0.9842 | 6.2 min elapsed, ~15.0 min left
+12:50:30   Train chunk 24/79 | loss 0.9837 | 6.4 min elapsed, ~14.7 min left
+12:50:45   Train chunk 25/79 | loss 0.9839 | 6.6 min elapsed, ~14.4 min left
+12:51:02   Train chunk 26/79 | loss 0.9841 | 6.9 min elapsed, ~14.1 min left
+12:51:18   Train chunk 27/79 | loss 0.9840 | 7.2 min elapsed, ~13.9 min left
+12:51:33   Train chunk 28/79 | loss 0.9843 | 7.5 min elapsed, ~13.6 min left
+12:51:49   Train chunk 29/79 | loss 0.9848 | 7.7 min elapsed, ~13.3 min left
+12:52:05   Train chunk 30/79 | loss 0.9840 | 8.0 min elapsed, ~13.0 min left
+12:52:21   Train chunk 31/79 | loss 0.9841 | 8.2 min elapsed, ~12.8 min left
+12:52:38   Train chunk 32/79 | loss 0.9836 | 8.5 min elapsed, ~12.5 min left
+12:52:54   Train chunk 33/79 | loss 0.9832 | 8.8 min elapsed, ~12.3 min left
+12:53:11   Train chunk 34/79 | loss 0.9828 | 9.1 min elapsed, ~12.0 min left
+12:53:26   Train chunk 35/79 | loss 0.9826 | 9.3 min elapsed, ~11.7 min left
+12:53:41   Train chunk 36/79 | loss 0.9827 | 9.6 min elapsed, ~11.4 min left
+12:53:57   Train chunk 37/79 | loss 0.9832 | 9.9 min elapsed, ~11.2 min left
+12:54:13   Train chunk 38/79 | loss 0.9823 | 10.1 min elapsed, ~10.9 min left
+12:54:29   Train chunk 39/79 | loss 0.9825 | 10.4 min elapsed, ~10.7 min left
+12:54:45   Train chunk 40/79 | loss 0.9826 | 10.6 min elapsed, ~10.4 min left
+12:55:01   Train chunk 41/79 | loss 0.9826 | 10.9 min elapsed, ~10.1 min left
+12:55:16   Train chunk 42/79 | loss 0.9830 | 11.2 min elapsed, ~9.8 min left
+12:55:19   Train chunk 43/79 | loss 0.9827 | 11.2 min elapsed, ~9.4 min left
+12:55:37   Train chunk 44/79 | loss 0.9823 | 11.5 min elapsed, ~9.2 min left
+12:55:52   Train chunk 45/79 | loss 0.9823 | 11.8 min elapsed, ~8.9 min left
+12:56:07   Train chunk 46/79 | loss 0.9822 | 12.0 min elapsed, ~8.6 min left
+12:56:23   Train chunk 47/79 | loss 0.9818 | 12.3 min elapsed, ~8.4 min left
+12:56:39   Train chunk 48/79 | loss 0.9825 | 12.5 min elapsed, ~8.1 min left
+12:56:54   Train chunk 49/79 | loss 0.9825 | 12.8 min elapsed, ~7.8 min left
+12:57:09   Train chunk 50/79 | loss 0.9822 | 13.0 min elapsed, ~7.6 min left
+12:57:25   Train chunk 51/79 | loss 0.9813 | 13.3 min elapsed, ~7.3 min left
+12:57:43   Train chunk 52/79 | loss 0.9808 | 13.6 min elapsed, ~7.1 min left
+12:57:58   Train chunk 53/79 | loss 0.9803 | 13.9 min elapsed, ~6.8 min left
+12:58:15   Train chunk 54/79 | loss 0.9804 | 14.1 min elapsed, ~6.5 min left
+12:58:30   Train chunk 55/79 | loss 0.9797 | 14.4 min elapsed, ~6.3 min left
+12:58:45   Train chunk 56/79 | loss 0.9801 | 14.7 min elapsed, ~6.0 min left
+12:59:01   Train chunk 57/79 | loss 0.9799 | 14.9 min elapsed, ~5.8 min left
+12:59:16   Train chunk 58/79 | loss 0.9792 | 15.2 min elapsed, ~5.5 min left
+12:59:33   Train chunk 59/79 | loss 0.9788 | 15.5 min elapsed, ~5.2 min left
+12:59:49   Train chunk 60/79 | loss 0.9786 | 15.7 min elapsed, ~5.0 min left
+13:00:04   Train chunk 61/79 | loss 0.9788 | 16.0 min elapsed, ~4.7 min left
+13:00:20   Train chunk 62/79 | loss 0.9788 | 16.2 min elapsed, ~4.5 min left
+13:00:35   Train chunk 63/79 | loss 0.9783 | 16.5 min elapsed, ~4.2 min left
+13:00:51   Train chunk 64/79 | loss 0.9782 | 16.7 min elapsed, ~3.9 min left
+13:01:07   Train chunk 65/79 | loss 0.9777 | 17.0 min elapsed, ~3.7 min left
+13:01:22   Train chunk 66/79 | loss 0.9776 | 17.3 min elapsed, ~3.4 min left
+13:01:39   Train chunk 67/79 | loss 0.9772 | 17.6 min elapsed, ~3.1 min left
+13:01:55   Train chunk 68/79 | loss 0.9769 | 17.8 min elapsed, ~2.9 min left
+13:02:12   Train chunk 69/79 | loss 0.9762 | 18.1 min elapsed, ~2.6 min left
+13:02:30   Train chunk 70/79 | loss 0.9758 | 18.4 min elapsed, ~2.4 min left
+13:02:45   Train chunk 71/79 | loss 0.9753 | 18.7 min elapsed, ~2.1 min left
+13:03:00   Train chunk 72/79 | loss 0.9756 | 18.9 min elapsed, ~1.8 min left
+13:03:16   Train chunk 73/79 | loss 0.9749 | 19.2 min elapsed, ~1.6 min left
+13:03:33   Train chunk 74/79 | loss 0.9746 | 19.5 min elapsed, ~1.3 min left
+13:03:49   Train chunk 75/79 | loss 0.9746 | 19.7 min elapsed, ~1.1 min left
+13:04:05   Train chunk 76/79 | loss 0.9742 | 20.0 min elapsed, ~0.8 min left
+13:04:23   Train chunk 77/79 | loss 0.9737 | 20.3 min elapsed, ~0.5 min left
+13:04:38   Train chunk 78/79 | loss 0.9734 | 20.5 min elapsed, ~0.3 min left
+13:04:55   Train chunk 79/79 | loss 0.9730 | 20.8 min elapsed, ~0.0 min left
+13:04:55 
+13:04:55 Dev: 2000 questions in 8 chunks
+13:05:09   Dev chunk 1/8 | loss 0.9493 | 0.2 min elapsed, ~1.6 min left
+13:05:22   Dev chunk 2/8 | loss 0.9346 | 0.5 min elapsed, ~1.4 min left
+13:05:36   Dev chunk 3/8 | loss 0.9448 | 0.7 min elapsed, ~1.1 min left
+13:05:49   Dev chunk 4/8 | loss 0.9463 | 0.9 min elapsed, ~0.9 min left
+13:06:04   Dev chunk 5/8 | loss 0.9488 | 1.1 min elapsed, ~0.7 min left
+13:06:19   Dev chunk 6/8 | loss 0.9481 | 1.4 min elapsed, ~0.5 min left
+13:06:33   Dev chunk 7/8 | loss 0.9484 | 1.6 min elapsed, ~0.2 min left
+13:06:45   Dev chunk 8/8 | loss 0.9510 | 1.8 min elapsed, ~0.0 min left
+13:06:45   Train loss: 0.9730 (relation 0.3915, pull 0.5338, answer 0.0477)
+13:06:45   Dev   loss: 0.9510 (relation 0.3935, pull 0.5172, answer 0.0403)
+13:06:45   Gold answers reachable within 3 hops: train 269150/269150, dev 26267/26267
+13:06:45   Saved best checkpoint -> checkpoints/hop_3_best.pt
+13:06:45 
+13:06:45 ============================================================
+13:06:45 EPOCH 3/5
+13:06:45 ============================================================
+13:06:45 
+13:06:45 Train: 20000 questions in 79 chunks
+13:07:01   Train chunk 1/79 | loss 0.9319 | 0.3 min elapsed, ~20.8 min left
+13:07:16   Train chunk 2/79 | loss 0.9422 | 0.5 min elapsed, ~20.2 min left
+13:07:33   Train chunk 3/79 | loss 0.9389 | 0.8 min elapsed, ~20.3 min left
+13:07:48   Train chunk 4/79 | loss 0.9274 | 1.1 min elapsed, ~19.7 min left
+13:08:02   Train chunk 5/79 | loss 0.9194 | 1.3 min elapsed, ~19.2 min left
+13:08:19   Train chunk 6/79 | loss 0.9263 | 1.6 min elapsed, ~19.2 min left
+13:08:36   Train chunk 7/79 | loss 0.9280 | 1.8 min elapsed, ~19.0 min left
+13:08:51   Train chunk 8/79 | loss 0.9236 | 2.1 min elapsed, ~18.7 min left
+13:09:07   Train chunk 9/79 | loss 0.9209 | 2.4 min elapsed, ~18.4 min left
+13:09:24   Train chunk 10/79 | loss 0.9192 | 2.7 min elapsed, ~18.3 min left
+13:09:40   Train chunk 11/79 | loss 0.9209 | 2.9 min elapsed, ~18.1 min left
+13:09:55   Train chunk 12/79 | loss 0.9240 | 3.2 min elapsed, ~17.7 min left
+13:10:11   Train chunk 13/79 | loss 0.9236 | 3.4 min elapsed, ~17.5 min left
+13:10:26   Train chunk 14/79 | loss 0.9245 | 3.7 min elapsed, ~17.1 min left
+13:10:41   Train chunk 15/79 | loss 0.9256 | 3.9 min elapsed, ~16.8 min left
+13:10:59   Train chunk 16/79 | loss 0.9248 | 4.2 min elapsed, ~16.7 min left
+13:11:16   Train chunk 17/79 | loss 0.9228 | 4.5 min elapsed, ~16.5 min left
+13:11:32   Train chunk 18/79 | loss 0.9219 | 4.8 min elapsed, ~16.2 min left
+13:11:46   Train chunk 19/79 | loss 0.9224 | 5.0 min elapsed, ~15.9 min left
+13:12:01   Train chunk 20/79 | loss 0.9222 | 5.3 min elapsed, ~15.6 min left
+13:12:17   Train chunk 21/79 | loss 0.9219 | 5.5 min elapsed, ~15.3 min left
+13:12:34   Train chunk 22/79 | loss 0.9205 | 5.8 min elapsed, ~15.1 min left
+13:12:49   Train chunk 23/79 | loss 0.9203 | 6.1 min elapsed, ~14.8 min left
+13:13:06   Train chunk 24/79 | loss 0.9190 | 6.4 min elapsed, ~14.6 min left
+13:13:21   Train chunk 25/79 | loss 0.9177 | 6.6 min elapsed, ~14.3 min left
+13:13:36   Train chunk 26/79 | loss 0.9164 | 6.9 min elapsed, ~14.0 min left
+13:13:52   Train chunk 27/79 | loss 0.9151 | 7.1 min elapsed, ~13.7 min left
+13:14:06   Train chunk 28/79 | loss 0.9145 | 7.4 min elapsed, ~13.4 min left
+13:14:22   Train chunk 29/79 | loss 0.9144 | 7.6 min elapsed, ~13.1 min left
+13:14:37   Train chunk 30/79 | loss 0.9143 | 7.9 min elapsed, ~12.9 min left
+13:14:52   Train chunk 31/79 | loss 0.9138 | 8.1 min elapsed, ~12.6 min left
+13:15:09   Train chunk 32/79 | loss 0.9129 | 8.4 min elapsed, ~12.3 min left
+13:15:23   Train chunk 33/79 | loss 0.9128 | 8.6 min elapsed, ~12.0 min left
+13:15:38   Train chunk 34/79 | loss 0.9122 | 8.9 min elapsed, ~11.8 min left
+13:15:55   Train chunk 35/79 | loss 0.9115 | 9.2 min elapsed, ~11.5 min left
+13:16:10   Train chunk 36/79 | loss 0.9110 | 9.4 min elapsed, ~11.3 min left
+13:16:26   Train chunk 37/79 | loss 0.9097 | 9.7 min elapsed, ~11.0 min left
+13:16:43   Train chunk 38/79 | loss 0.9087 | 10.0 min elapsed, ~10.8 min left
+13:17:00   Train chunk 39/79 | loss 0.9083 | 10.3 min elapsed, ~10.5 min left
+13:17:16   Train chunk 40/79 | loss 0.9075 | 10.5 min elapsed, ~10.3 min left
+13:17:19   Train chunk 41/79 | loss 0.9071 | 10.6 min elapsed, ~9.8 min left
+13:17:35   Train chunk 42/79 | loss 0.9065 | 10.8 min elapsed, ~9.5 min left
+13:17:50   Train chunk 43/79 | loss 0.9061 | 11.1 min elapsed, ~9.3 min left
+13:18:06   Train chunk 44/79 | loss 0.9056 | 11.4 min elapsed, ~9.0 min left
+13:18:22   Train chunk 45/79 | loss 0.9053 | 11.6 min elapsed, ~8.8 min left
+13:18:37   Train chunk 46/79 | loss 0.9054 | 11.9 min elapsed, ~8.5 min left
+13:18:52   Train chunk 47/79 | loss 0.9059 | 12.1 min elapsed, ~8.3 min left
+13:19:09   Train chunk 48/79 | loss 0.9050 | 12.4 min elapsed, ~8.0 min left
+13:19:24   Train chunk 49/79 | loss 0.9038 | 12.7 min elapsed, ~7.8 min left
+13:19:41   Train chunk 50/79 | loss 0.9032 | 12.9 min elapsed, ~7.5 min left
+13:19:57   Train chunk 51/79 | loss 0.9033 | 13.2 min elapsed, ~7.2 min left
+13:20:12   Train chunk 52/79 | loss 0.9028 | 13.5 min elapsed, ~7.0 min left
+13:20:29   Train chunk 53/79 | loss 0.9021 | 13.7 min elapsed, ~6.7 min left
+13:20:46   Train chunk 54/79 | loss 0.9020 | 14.0 min elapsed, ~6.5 min left
+13:21:01   Train chunk 55/79 | loss 0.9022 | 14.3 min elapsed, ~6.2 min left
+13:21:19   Train chunk 56/79 | loss 0.9015 | 14.6 min elapsed, ~6.0 min left
+13:21:34   Train chunk 57/79 | loss 0.9010 | 14.8 min elapsed, ~5.7 min left
+13:21:52   Train chunk 58/79 | loss 0.9005 | 15.1 min elapsed, ~5.5 min left
+13:22:09   Train chunk 59/79 | loss 0.9000 | 15.4 min elapsed, ~5.2 min left
+13:22:25   Train chunk 60/79 | loss 0.9000 | 15.7 min elapsed, ~5.0 min left
+13:22:41   Train chunk 61/79 | loss 0.8993 | 15.9 min elapsed, ~4.7 min left
+13:22:57   Train chunk 62/79 | loss 0.8988 | 16.2 min elapsed, ~4.4 min left
+13:23:12   Train chunk 63/79 | loss 0.8983 | 16.5 min elapsed, ~4.2 min left
+13:23:28   Train chunk 64/79 | loss 0.8981 | 16.7 min elapsed, ~3.9 min left
+13:23:43   Train chunk 65/79 | loss 0.8980 | 17.0 min elapsed, ~3.7 min left
+13:24:00   Train chunk 66/79 | loss 0.8980 | 17.3 min elapsed, ~3.4 min left
+13:24:17   Train chunk 67/79 | loss 0.8979 | 17.5 min elapsed, ~3.1 min left
+13:24:33   Train chunk 68/79 | loss 0.8974 | 17.8 min elapsed, ~2.9 min left
+13:24:49   Train chunk 69/79 | loss 0.8969 | 18.1 min elapsed, ~2.6 min left
+13:25:05   Train chunk 70/79 | loss 0.8964 | 18.3 min elapsed, ~2.4 min left
+13:25:20   Train chunk 71/79 | loss 0.8963 | 18.6 min elapsed, ~2.1 min left
+13:25:36   Train chunk 72/79 | loss 0.8960 | 18.9 min elapsed, ~1.8 min left
+13:25:51   Train chunk 73/79 | loss 0.8960 | 19.1 min elapsed, ~1.6 min left
+13:26:08   Train chunk 74/79 | loss 0.8953 | 19.4 min elapsed, ~1.3 min left
+13:26:24   Train chunk 75/79 | loss 0.8949 | 19.7 min elapsed, ~1.0 min left
+13:26:39   Train chunk 76/79 | loss 0.8949 | 19.9 min elapsed, ~0.8 min left
+13:26:57   Train chunk 77/79 | loss 0.8945 | 20.2 min elapsed, ~0.5 min left
+13:27:13   Train chunk 78/79 | loss 0.8944 | 20.5 min elapsed, ~0.3 min left
+13:27:28   Train chunk 79/79 | loss 0.8944 | 20.7 min elapsed, ~0.0 min left
+13:27:28 
+13:27:28 Dev: 2000 questions in 8 chunks
+13:27:42   Dev chunk 1/8 | loss 0.8990 | 0.2 min elapsed, ~1.6 min left
+13:27:56   Dev chunk 2/8 | loss 0.8796 | 0.5 min elapsed, ~1.4 min left
+13:28:09   Dev chunk 3/8 | loss 0.8889 | 0.7 min elapsed, ~1.1 min left
+13:28:23   Dev chunk 4/8 | loss 0.8890 | 0.9 min elapsed, ~0.9 min left
+13:28:37   Dev chunk 5/8 | loss 0.8894 | 1.1 min elapsed, ~0.7 min left
+13:28:53   Dev chunk 6/8 | loss 0.8889 | 1.4 min elapsed, ~0.5 min left
+13:29:06   Dev chunk 7/8 | loss 0.8894 | 1.6 min elapsed, ~0.2 min left
+13:29:18   Dev chunk 8/8 | loss 0.8910 | 1.8 min elapsed, ~0.0 min left
+13:29:18   Train loss: 0.8944 (relation 0.3881, pull 0.4676, answer 0.0386)
+13:29:18   Dev   loss: 0.8910 (relation 0.3940, pull 0.4597, answer 0.0373)
+13:29:18   Gold answers reachable within 3 hops: train 269150/269150, dev 26267/26267
+13:29:18   Saved best checkpoint -> checkpoints/hop_3_best.pt
+13:29:18 
+13:29:18 ============================================================
+13:29:18 EPOCH 4/5
+13:29:18 ============================================================
+13:29:18 
+13:29:18 Train: 20000 questions in 79 chunks
+13:29:34   Train chunk 1/79 | loss 0.8213 | 0.3 min elapsed, ~20.1 min left
+13:29:49   Train chunk 2/79 | loss 0.8268 | 0.5 min elapsed, ~19.9 min left
+13:30:05   Train chunk 3/79 | loss 0.8283 | 0.8 min elapsed, ~19.7 min left
+13:30:22   Train chunk 4/79 | loss 0.8313 | 1.1 min elapsed, ~20.0 min left
+13:30:39   Train chunk 5/79 | loss 0.8408 | 1.3 min elapsed, ~19.9 min left
+13:30:54   Train chunk 6/79 | loss 0.8423 | 1.6 min elapsed, ~19.4 min left
+13:31:09   Train chunk 7/79 | loss 0.8435 | 1.8 min elapsed, ~19.0 min left
+13:31:24   Train chunk 8/79 | loss 0.8457 | 2.1 min elapsed, ~18.6 min left
+13:31:40   Train chunk 9/79 | loss 0.8443 | 2.4 min elapsed, ~18.5 min left
+13:31:57   Train chunk 10/79 | loss 0.8427 | 2.6 min elapsed, ~18.2 min left
+13:32:12   Train chunk 11/79 | loss 0.8393 | 2.9 min elapsed, ~17.9 min left
+13:32:27   Train chunk 12/79 | loss 0.8396 | 3.1 min elapsed, ~17.5 min left
+13:32:43   Train chunk 13/79 | loss 0.8383 | 3.4 min elapsed, ~17.4 min left
+13:32:59   Train chunk 14/79 | loss 0.8398 | 3.7 min elapsed, ~17.1 min left
+13:33:14   Train chunk 15/79 | loss 0.8409 | 3.9 min elapsed, ~16.8 min left
+13:33:31   Train chunk 16/79 | loss 0.8412 | 4.2 min elapsed, ~16.6 min left
+13:33:48   Train chunk 17/79 | loss 0.8403 | 4.5 min elapsed, ~16.4 min left
+13:34:04   Train chunk 18/79 | loss 0.8398 | 4.8 min elapsed, ~16.1 min left
+13:34:19   Train chunk 19/79 | loss 0.8391 | 5.0 min elapsed, ~15.8 min left
+13:34:36   Train chunk 20/79 | loss 0.8394 | 5.3 min elapsed, ~15.6 min left
+13:34:52   Train chunk 21/79 | loss 0.8392 | 5.6 min elapsed, ~15.4 min left
+13:35:08   Train chunk 22/79 | loss 0.8386 | 5.8 min elapsed, ~15.1 min left
+13:35:23   Train chunk 23/79 | loss 0.8387 | 6.1 min elapsed, ~14.8 min left
+13:35:37   Train chunk 24/79 | loss 0.8395 | 6.3 min elapsed, ~14.5 min left
+13:35:53   Train chunk 25/79 | loss 0.8393 | 6.6 min elapsed, ~14.2 min left
+13:36:09   Train chunk 26/79 | loss 0.8392 | 6.9 min elapsed, ~14.0 min left
+13:36:26   Train chunk 27/79 | loss 0.8381 | 7.1 min elapsed, ~13.7 min left
+13:36:45   Train chunk 28/79 | loss 0.8373 | 7.4 min elapsed, ~13.6 min left
+13:37:02   Train chunk 29/79 | loss 0.8368 | 7.7 min elapsed, ~13.3 min left
+13:37:05   Train chunk 30/79 | loss 0.8363 | 7.8 min elapsed, ~12.7 min left
+13:37:21   Train chunk 31/79 | loss 0.8361 | 8.1 min elapsed, ~12.5 min left
+13:37:39   Train chunk 32/79 | loss 0.8369 | 8.4 min elapsed, ~12.3 min left
+13:37:58   Train chunk 33/79 | loss 0.8367 | 8.7 min elapsed, ~12.1 min left
+13:38:15   Train chunk 34/79 | loss 0.8356 | 9.0 min elapsed, ~11.8 min left
+13:38:32   Train chunk 35/79 | loss 0.8363 | 9.2 min elapsed, ~11.6 min left
+13:38:51   Train chunk 36/79 | loss 0.8354 | 9.6 min elapsed, ~11.4 min left
+13:39:09   Train chunk 37/79 | loss 0.8350 | 9.8 min elapsed, ~11.2 min left
+13:39:24   Train chunk 38/79 | loss 0.8349 | 10.1 min elapsed, ~10.9 min left
+13:39:41   Train chunk 39/79 | loss 0.8354 | 10.4 min elapsed, ~10.7 min left
+13:39:57   Train chunk 40/79 | loss 0.8350 | 10.7 min elapsed, ~10.4 min left
+13:40:12   Train chunk 41/79 | loss 0.8347 | 10.9 min elapsed, ~10.1 min left
+13:40:27   Train chunk 42/79 | loss 0.8346 | 11.2 min elapsed, ~9.8 min left
+13:40:42   Train chunk 43/79 | loss 0.8346 | 11.4 min elapsed, ~9.5 min left
+13:40:56   Train chunk 44/79 | loss 0.8351 | 11.6 min elapsed, ~9.3 min left
+13:41:15   Train chunk 45/79 | loss 0.8348 | 11.9 min elapsed, ~9.0 min left
+13:41:30   Train chunk 46/79 | loss 0.8349 | 12.2 min elapsed, ~8.8 min left
+13:41:46   Train chunk 47/79 | loss 0.8354 | 12.5 min elapsed, ~8.5 min left
+13:42:02   Train chunk 48/79 | loss 0.8347 | 12.7 min elapsed, ~8.2 min left
+13:42:18   Train chunk 49/79 | loss 0.8343 | 13.0 min elapsed, ~8.0 min left
+13:42:36   Train chunk 50/79 | loss 0.8340 | 13.3 min elapsed, ~7.7 min left
+13:42:52   Train chunk 51/79 | loss 0.8339 | 13.6 min elapsed, ~7.4 min left
+13:43:08   Train chunk 52/79 | loss 0.8338 | 13.8 min elapsed, ~7.2 min left
+13:43:23   Train chunk 53/79 | loss 0.8335 | 14.1 min elapsed, ~6.9 min left
+13:43:42   Train chunk 54/79 | loss 0.8330 | 14.4 min elapsed, ~6.7 min left
+13:43:58   Train chunk 55/79 | loss 0.8332 | 14.7 min elapsed, ~6.4 min left
+13:44:15   Train chunk 56/79 | loss 0.8337 | 14.9 min elapsed, ~6.1 min left
+13:44:34   Train chunk 57/79 | loss 0.8336 | 15.3 min elapsed, ~5.9 min left
+13:44:50   Train chunk 58/79 | loss 0.8341 | 15.5 min elapsed, ~5.6 min left
+13:45:10   Train chunk 59/79 | loss 0.8336 | 15.9 min elapsed, ~5.4 min left
+13:45:28   Train chunk 60/79 | loss 0.8333 | 16.2 min elapsed, ~5.1 min left
+13:45:44   Train chunk 61/79 | loss 0.8334 | 16.4 min elapsed, ~4.9 min left
+13:46:01   Train chunk 62/79 | loss 0.8332 | 16.7 min elapsed, ~4.6 min left
+13:46:18   Train chunk 63/79 | loss 0.8331 | 17.0 min elapsed, ~4.3 min left
+13:46:37   Train chunk 64/79 | loss 0.8331 | 17.3 min elapsed, ~4.1 min left
+13:46:55   Train chunk 65/79 | loss 0.8328 | 17.6 min elapsed, ~3.8 min left
+13:47:12   Train chunk 66/79 | loss 0.8324 | 17.9 min elapsed, ~3.5 min left
+13:47:31   Train chunk 67/79 | loss 0.8322 | 18.2 min elapsed, ~3.3 min left
+13:47:49   Train chunk 68/79 | loss 0.8322 | 18.5 min elapsed, ~3.0 min left
+13:48:09   Train chunk 69/79 | loss 0.8317 | 18.8 min elapsed, ~2.7 min left
+13:48:26   Train chunk 70/79 | loss 0.8312 | 19.1 min elapsed, ~2.5 min left
+13:48:44   Train chunk 71/79 | loss 0.8309 | 19.4 min elapsed, ~2.2 min left
+13:49:04   Train chunk 72/79 | loss 0.8305 | 19.8 min elapsed, ~1.9 min left
+13:49:21   Train chunk 73/79 | loss 0.8304 | 20.1 min elapsed, ~1.6 min left
+13:49:39   Train chunk 74/79 | loss 0.8304 | 20.3 min elapsed, ~1.4 min left
+13:49:57   Train chunk 75/79 | loss 0.8305 | 20.6 min elapsed, ~1.1 min left
+13:50:13   Train chunk 76/79 | loss 0.8299 | 20.9 min elapsed, ~0.8 min left
+13:50:29   Train chunk 77/79 | loss 0.8302 | 21.2 min elapsed, ~0.6 min left
+13:50:46   Train chunk 78/79 | loss 0.8302 | 21.5 min elapsed, ~0.3 min left
+13:51:04   Train chunk 79/79 | loss 0.8305 | 21.8 min elapsed, ~0.0 min left
+13:51:04 
+13:51:04 Dev: 2000 questions in 8 chunks
+13:51:19   Dev chunk 1/8 | loss 0.8532 | 0.3 min elapsed, ~1.8 min left
+13:51:34   Dev chunk 2/8 | loss 0.8283 | 0.5 min elapsed, ~1.5 min left
+13:51:48   Dev chunk 3/8 | loss 0.8388 | 0.7 min elapsed, ~1.2 min left
+13:52:03   Dev chunk 4/8 | loss 0.8411 | 1.0 min elapsed, ~1.0 min left
+13:52:18   Dev chunk 5/8 | loss 0.8400 | 1.2 min elapsed, ~0.7 min left
+13:52:35   Dev chunk 6/8 | loss 0.8393 | 1.5 min elapsed, ~0.5 min left
+13:52:49   Dev chunk 7/8 | loss 0.8416 | 1.8 min elapsed, ~0.3 min left
+13:53:02   Dev chunk 8/8 | loss 0.8443 | 2.0 min elapsed, ~0.0 min left
+13:53:02   Train loss: 0.8305 (relation 0.3865, pull 0.4097, answer 0.0343)
+13:53:02   Dev   loss: 0.8443 (relation 0.3918, pull 0.4154, answer 0.0370)
+13:53:02   Gold answers reachable within 3 hops: train 269150/269150, dev 26267/26267
+13:53:02   Saved best checkpoint -> checkpoints/hop_3_best.pt
+13:53:02 
+13:53:02 ============================================================
+13:53:02 EPOCH 5/5
+13:53:02 ============================================================
+13:53:02 
+13:53:02 Train: 20000 questions in 79 chunks
+13:53:19   Train chunk 1/79 | loss 0.7688 | 0.3 min elapsed, ~22.0 min left
+13:53:36   Train chunk 2/79 | loss 0.7777 | 0.6 min elapsed, ~21.7 min left
+13:53:52   Train chunk 3/79 | loss 0.7871 | 0.8 min elapsed, ~20.9 min left
+13:54:07   Train chunk 4/79 | loss 0.7865 | 1.1 min elapsed, ~20.1 min left
+13:54:25   Train chunk 5/79 | loss 0.7850 | 1.4 min elapsed, ~20.3 min left
+13:54:41   Train chunk 6/79 | loss 0.7885 | 1.6 min elapsed, ~20.0 min left
+13:55:01   Train chunk 7/79 | loss 0.7877 | 2.0 min elapsed, ~20.4 min left
+13:55:20   Train chunk 8/79 | loss 0.7864 | 2.3 min elapsed, ~20.4 min left
+13:55:38   Train chunk 9/79 | loss 0.7859 | 2.6 min elapsed, ~20.2 min left
+13:55:57   Train chunk 10/79 | loss 0.7864 | 2.9 min elapsed, ~20.1 min left
+13:56:15   Train chunk 11/79 | loss 0.7880 | 3.2 min elapsed, ~19.8 min left
+13:56:34   Train chunk 12/79 | loss 0.7912 | 3.5 min elapsed, ~19.7 min left
+13:56:52   Train chunk 13/79 | loss 0.7924 | 3.8 min elapsed, ~19.4 min left
+13:57:09   Train chunk 14/79 | loss 0.7925 | 4.1 min elapsed, ~19.1 min left
+13:57:26   Train chunk 15/79 | loss 0.7926 | 4.4 min elapsed, ~18.8 min left
+13:57:46   Train chunk 16/79 | loss 0.7905 | 4.7 min elapsed, ~18.6 min left
+13:58:03   Train chunk 17/79 | loss 0.7894 | 5.0 min elapsed, ~18.3 min left
+13:58:21   Train chunk 18/79 | loss 0.7881 | 5.3 min elapsed, ~18.0 min left
+13:58:37   Train chunk 19/79 | loss 0.7891 | 5.6 min elapsed, ~17.6 min left
+13:58:53   Train chunk 20/79 | loss 0.7878 | 5.8 min elapsed, ~17.2 min left
+13:59:08   Train chunk 21/79 | loss 0.7880 | 6.1 min elapsed, ~16.9 min left
+13:59:26   Train chunk 22/79 | loss 0.7885 | 6.4 min elapsed, ~16.6 min left
+13:59:44   Train chunk 23/79 | loss 0.7888 | 6.7 min elapsed, ~16.3 min left
+14:00:01   Train chunk 24/79 | loss 0.7886 | 7.0 min elapsed, ~16.0 min left
+14:00:19   Train chunk 25/79 | loss 0.7886 | 7.3 min elapsed, ~15.7 min left
+14:00:34   Train chunk 26/79 | loss 0.7892 | 7.5 min elapsed, ~15.3 min left
+14:00:49   Train chunk 27/79 | loss 0.7885 | 7.8 min elapsed, ~15.0 min left
+14:01:05   Train chunk 28/79 | loss 0.7891 | 8.0 min elapsed, ~14.7 min left
+14:01:23   Train chunk 29/79 | loss 0.7888 | 8.3 min elapsed, ~14.4 min left
+14:01:41   Train chunk 30/79 | loss 0.7893 | 8.6 min elapsed, ~14.1 min left
+14:01:57   Train chunk 31/79 | loss 0.7896 | 8.9 min elapsed, ~13.8 min left
+14:02:13   Train chunk 32/79 | loss 0.7891 | 9.2 min elapsed, ~13.5 min left
+14:02:31   Train chunk 33/79 | loss 0.7887 | 9.5 min elapsed, ~13.2 min left
+14:02:46   Train chunk 34/79 | loss 0.7875 | 9.7 min elapsed, ~12.9 min left
+14:03:03   Train chunk 35/79 | loss 0.7874 | 10.0 min elapsed, ~12.6 min left
+14:03:19   Train chunk 36/79 | loss 0.7875 | 10.3 min elapsed, ~12.3 min left
+14:03:35   Train chunk 37/79 | loss 0.7887 | 10.5 min elapsed, ~12.0 min left
+14:03:54   Train chunk 38/79 | loss 0.7888 | 10.9 min elapsed, ~11.7 min left
+14:04:12   Train chunk 39/79 | loss 0.7895 | 11.2 min elapsed, ~11.4 min left
+14:04:28   Train chunk 40/79 | loss 0.7890 | 11.4 min elapsed, ~11.1 min left
+14:04:44   Train chunk 41/79 | loss 0.7884 | 11.7 min elapsed, ~10.8 min left
+14:05:01   Train chunk 42/79 | loss 0.7887 | 12.0 min elapsed, ~10.6 min left
+14:05:18   Train chunk 43/79 | loss 0.7885 | 12.3 min elapsed, ~10.3 min left
+14:05:36   Train chunk 44/79 | loss 0.7884 | 12.6 min elapsed, ~10.0 min left
+14:05:53   Train chunk 45/79 | loss 0.7881 | 12.9 min elapsed, ~9.7 min left
+14:06:13   Train chunk 46/79 | loss 0.7887 | 13.2 min elapsed, ~9.5 min left
+14:06:31   Train chunk 47/79 | loss 0.7890 | 13.5 min elapsed, ~9.2 min left
+14:06:49   Train chunk 48/79 | loss 0.7891 | 13.8 min elapsed, ~8.9 min left
+14:07:07   Train chunk 49/79 | loss 0.7896 | 14.1 min elapsed, ~8.6 min left
+14:07:25   Train chunk 50/79 | loss 0.7899 | 14.4 min elapsed, ~8.3 min left
+14:07:43   Train chunk 51/79 | loss 0.7896 | 14.7 min elapsed, ~8.1 min left
+14:08:01   Train chunk 52/79 | loss 0.7892 | 15.0 min elapsed, ~7.8 min left
+14:08:04   Train chunk 53/79 | loss 0.7890 | 15.0 min elapsed, ~7.4 min left
+14:08:20   Train chunk 54/79 | loss 0.7890 | 15.3 min elapsed, ~7.1 min left
+14:08:39   Train chunk 55/79 | loss 0.7889 | 15.6 min elapsed, ~6.8 min left
+14:08:57   Train chunk 56/79 | loss 0.7886 | 15.9 min elapsed, ~6.5 min left
+14:09:15   Train chunk 57/79 | loss 0.7883 | 16.2 min elapsed, ~6.3 min left
+14:09:32   Train chunk 58/79 | loss 0.7888 | 16.5 min elapsed, ~6.0 min left
+14:09:51   Train chunk 59/79 | loss 0.7886 | 16.8 min elapsed, ~5.7 min left
+14:10:08   Train chunk 60/79 | loss 0.7886 | 17.1 min elapsed, ~5.4 min left
+14:10:25   Train chunk 61/79 | loss 0.7882 | 17.4 min elapsed, ~5.1 min left
+14:10:42   Train chunk 62/79 | loss 0.7885 | 17.7 min elapsed, ~4.8 min left
+14:10:58   Train chunk 63/79 | loss 0.7884 | 17.9 min elapsed, ~4.6 min left
+14:11:17   Train chunk 64/79 | loss 0.7884 | 18.2 min elapsed, ~4.3 min left
+14:11:35   Train chunk 65/79 | loss 0.7881 | 18.5 min elapsed, ~4.0 min left
+14:11:57   Train chunk 66/79 | loss 0.7878 | 18.9 min elapsed, ~3.7 min left
+14:12:14   Train chunk 67/79 | loss 0.7878 | 19.2 min elapsed, ~3.4 min left
+14:12:32   Train chunk 68/79 | loss 0.7875 | 19.5 min elapsed, ~3.2 min left
+14:12:52   Train chunk 69/79 | loss 0.7872 | 19.8 min elapsed, ~2.9 min left
+14:13:10   Train chunk 70/79 | loss 0.7875 | 20.1 min elapsed, ~2.6 min left
+14:13:28   Train chunk 71/79 | loss 0.7874 | 20.4 min elapsed, ~2.3 min left
+14:13:46   Train chunk 72/79 | loss 0.7873 | 20.7 min elapsed, ~2.0 min left
+14:14:02   Train chunk 73/79 | loss 0.7874 | 21.0 min elapsed, ~1.7 min left
+14:14:18   Train chunk 74/79 | loss 0.7872 | 21.3 min elapsed, ~1.4 min left
+14:14:36   Train chunk 75/79 | loss 0.7875 | 21.6 min elapsed, ~1.2 min left
+14:14:52   Train chunk 76/79 | loss 0.7872 | 21.8 min elapsed, ~0.9 min left
+14:15:10   Train chunk 77/79 | loss 0.7870 | 22.1 min elapsed, ~0.6 min left
+14:15:26   Train chunk 78/79 | loss 0.7869 | 22.4 min elapsed, ~0.3 min left
+14:15:41   Train chunk 79/79 | loss 0.7866 | 22.6 min elapsed, ~0.0 min left
+14:15:41 
+14:15:41 Dev: 2000 questions in 8 chunks
+14:15:55   Dev chunk 1/8 | loss 0.8156 | 0.2 min elapsed, ~1.7 min left
+14:16:09   Dev chunk 2/8 | loss 0.7905 | 0.5 min elapsed, ~1.4 min left
+14:16:23   Dev chunk 3/8 | loss 0.8041 | 0.7 min elapsed, ~1.2 min left
+14:16:39   Dev chunk 4/8 | loss 0.8054 | 1.0 min elapsed, ~1.0 min left
+14:16:54   Dev chunk 5/8 | loss 0.8008 | 1.2 min elapsed, ~0.7 min left
+14:17:10   Dev chunk 6/8 | loss 0.7989 | 1.5 min elapsed, ~0.5 min left
+14:17:24   Dev chunk 7/8 | loss 0.8010 | 1.7 min elapsed, ~0.2 min left
+14:17:36   Dev chunk 8/8 | loss 0.8027 | 1.9 min elapsed, ~0.0 min left
+14:17:36   Train loss: 0.7866 (relation 0.3856, pull 0.3690, answer 0.0321)
+14:17:36   Dev   loss: 0.8027 (relation 0.3917, pull 0.3752, answer 0.0359)
+14:17:36   Gold answers reachable within 3 hops: train 269150/269150, dev 26267/26267
+14:17:36   Saved best checkpoint -> checkpoints/hop_3_best.pt
+14:17:36 
+14:17:36 ============================================================
+14:17:36 TRAINING COMPLETE | best epoch 5 | best dev loss 0.8027 | checkpoints/hop_3_best.pt
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:55:39
+	Maximum resident set size (kbytes): 3005388
+	Exit status: 0

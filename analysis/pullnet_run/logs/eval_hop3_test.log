@@ -1,0 +1,19 @@
+test scoring started: 2026-11-18 14:17:40
+14:18:29 Loaded checkpoint (epoch 5, dev loss 0.8027)
+14:18:29 Evaluating 14274 test questions (3-hop)
+14:18:29 Prepared 14274 | skipped 0 | unmatched gold answers 0
+14:18:29 
+14:18:29 === run: max_facts=10, top_k=10 ===
+14:18:29 
+14:18:29 ============================================================================================
+14:18:29 END-TO-END EVALUATION  |  3-hop test  |  14274 questions
+14:18:29 ============================================================================================
+14:18:29 setting             Hits@1  Hits@5  Hits@10     MRR   Cover    Ents   Facts
+14:18:29 --------------------------------------------------------------------------------------------
+14:18:29 run                  0.610   0.900    0.951   0.736   0.702     113     132
+14:18:29 ============================================================================================
+14:18:29 Cover = answer coverage: the ceiling for Hits@K set by retrieval alone.
+14:18:29 Saved results to results/hop3_test_full.json
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:49.16
+	Maximum resident set size (kbytes): 962756
+	Exit status: 0

@@ -1,0 +1,6 @@
+# Retraining workspace: data symlinks and model checkpoints stay out of git
+pullnet_run/kb.txt
+pullnet_run/1-hop
+pullnet_run/2-hop
+pullnet_run/3-hop
+pullnet_run/checkpoints/
