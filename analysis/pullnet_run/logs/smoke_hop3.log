@@ -1,0 +1,48 @@
+=== hop 3: start 2026-11-18 06:49:15 ===
+06:49:16 Device: cuda
+06:49:16 Loading knowledge graph...
+06:49:17   43234 entities, 134741 facts, 18 direction-aware relations
+06:49:17   train: 500/114196  dev: 200/14274
+06:49:18 Vocabulary size: 54
+06:49:18 Trainable parameters: 5942170
+06:49:18 
+06:49:18 ============================================================
+06:49:18 EPOCH 1/1
+06:49:18 ============================================================
+06:49:18 
+06:49:18 Train: 500 questions in 2 chunks
+06:49:33   Train chunk 1/2 | loss 1.8365 | 0.2 min elapsed, ~0.2 min left
+06:49:47   Train chunk 2/2 | loss 1.6416 | 0.5 min elapsed, ~0.0 min left
+06:49:47 
+06:49:47 Dev: 200 questions in 1 chunks
+06:49:57   Dev chunk 1/1 | loss 1.3614 | 0.2 min elapsed, ~0.0 min left
+06:49:57   Train loss: 1.6416 (relation 0.5268, pull 0.6897, answer 0.4250)
+06:49:57   Dev   loss: 1.3614 (relation 0.4545, pull 0.6869, answer 0.2200)
+06:49:57   Gold answers reachable within 3 hops: train 6746/6746, dev 2371/2371
+06:49:57   Saved best checkpoint -> checkpoints/hop_3_best.pt
+06:49:57 
+06:49:57 ============================================================
+06:49:57 TRAINING COMPLETE | best epoch 1 | best dev loss 1.3614 | checkpoints/hop_3_best.pt
+=== hop 3: end 2026-11-18 06:49:59 ===
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:43.20
+	Maximum resident set size (kbytes): 2939076
+	Exit status: 0
+=== hop 3: inference timing start 2026-11-18 06:49:59 ===
+06:50:00 Loaded checkpoint (epoch 1, dev loss 1.3614)
+06:50:01 Evaluating 200 dev questions (3-hop)
+06:50:01 Prepared 200 | skipped 0 | unmatched gold answers 0
+06:50:01 
+06:50:01 === run: max_facts=10, top_k=10 ===
+06:50:03   200/200 questions
+06:50:03 
+06:50:03 ============================================================================================
+06:50:03 END-TO-END EVALUATION  |  3-hop dev  |  200 questions
+06:50:03 ============================================================================================
+06:50:03 setting             Hits@1  Hits@5  Hits@10     MRR   Cover    Ents   Facts
+06:50:03 --------------------------------------------------------------------------------------------
+06:50:03 run                  0.205   0.395    0.450   0.297   0.457     118     136
+06:50:03 ============================================================================================
+06:50:03 Cover = answer coverage: the ceiling for Hits@K set by retrieval alone.
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:05.00
+	Maximum resident set size (kbytes): 1308128
+	Exit status: 0
